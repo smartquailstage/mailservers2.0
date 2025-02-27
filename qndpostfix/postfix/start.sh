@@ -13,8 +13,8 @@ function log {
 }
 
 function addUserInfo {
-  local user_name="info"
-  local user_maildir="/var/mail/${DOMAIN}/${user_name}"
+  local user_name="support@smartquail.io"
+  local user_maildir="/var/mail/${user_name}"
 
   # Verifica si el usuario ya existe
   if ! getent passwd "$user_name" &>/dev/null; then
@@ -24,9 +24,9 @@ function addUserInfo {
     adduser --system --home "/home/$user_name" --no-create-home "$user_name"
 
     # Crea el directorio de Maildir si no existe
-    mkdir -p "$user_maildir/tmp"
-    mkdir -p "$user_maildir/new"
-    mkdir -p "$user_maildir/cur"
+    mkdir -p "$user_maildir/tmp/"
+    mkdir -p "$user_maildir/new/"
+    mkdir -p "$user_maildir/cur/"
     
     # Ajusta los permisos del directorio de Maildir
     chown -R vmail:vmail "$user_maildir"
@@ -97,7 +97,7 @@ function insertInitialData {
     ON CONFLICT DO NOTHING;
 
     INSERT INTO virtual_aliases (domain_id, source, destination) VALUES 
-    ((SELECT id FROM virtual_domains WHERE domain = 'smartquail.io'), 'support@mail.smartquail.io', 'support') 
+    ((SELECT id FROM virtual_domains WHERE domain = 'smartquail.io'), 'support@mail.smartquail.io', 'support@smartquail.io') 
     ON CONFLICT DO NOTHING;
 
     INSERT INTO admin (username,password,created,modified,active,superadmin,phone,email_other,token,token_validity) 
@@ -150,10 +150,14 @@ function setPermissions {
   # Ensure directories and files have correct permissions
   log "Setting permissions for Postfix directories and files..."
 
-  # Set ownership and permissions for Postfix directories
+  # Set ownership and permissions for Postfix-Dovecot sockets directories 
   chown -R postfix:postfix /var/spool/dovecot
   chmod 750 /var/spool/dovecot/private
   chmod 750 /var/spool/dovecot
+    # Set ownership and permissions for Postfix-OpendDkim sockets directories 
+  chown -R postfix:postfix /var/spool/postfix
+  chmod 750 /var/spool/postfix/private
+  chmod 750 /var/spool/posfix
 
   # Set ownership and permissions for Postfix configuration files
   chown -R root:root /etc/postfix
@@ -171,8 +175,9 @@ function serviceStart {
   serviceConf
   setPermissions
   log "[ Iniciando Postfix... ]"
-  /usr/sbin/opendkim -x /etc/opendkim/opendkim.conf 
   /usr/sbin/postfix start-fg
+  opendkim -x /etc/opendkim/opendkim.conf 
+  opendkim -f
 }
 
 serviceStart &>> /proc/1/fd/1

@@ -38,12 +38,16 @@ RUN addgroup -g 1001 postfix || true \
     && adduser -D -u 1003 -G opendkim -s /sbin/nologin opendkim || true
 
 # Create necessary directories and set permissions
-RUN mkdir -p /var/spool/dovecot/private /var/mail/{cur,new,tmp} \
+RUN mkdir -p /var/spool/dovecot/private /var/spool/postfix/private \
     && mkdir -p /etc/opendkim /etc/ssl/certs /etc/ssl/private \
     # Set ownership and permissions for /var/spool/dovecot
     && chown -R postfix:postfix /var/spool/dovecot \
     && chmod 750 /var/spool/dovecot/private \
     && chmod 750 /var/spool/dovecot \
+    # Set ownership and permissions for /var/spool/postfix
+    && chown -R postfix:postfix /var/spool/postfix \
+    && chmod 750 /var/spool/postfix/private \
+    && chmod 750 /var/spool/postfix \
     # Set ownership and permissions for /var/mail
     && mkdir -p /var/mail \
     && chown -R vmail:vmail /var/mail \
