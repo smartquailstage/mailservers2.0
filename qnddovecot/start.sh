@@ -55,3 +55,6 @@ ls -ld "$MAILDIR_STRUCTURE/tmp"
 echo "Permissions and ownership have been set."
 
 
+
+# Ensure that Dovecot is running in the foreground (this might be preferred for Docker containers)
+exec dovecot -F
