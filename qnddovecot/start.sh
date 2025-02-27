@@ -54,9 +54,7 @@ ls -ld "$MAILDIR_STRUCTURE/tmp"
 
 echo "Permissions and ownership have been set."
 
-# Keep the container running by tailing the log file
-# If the log file does not exist, this will fail. So, let's use a different method to keep the container running.
-tail -f /var/log/dovecot.log
+
 
 # Ensure that Dovecot is running in the foreground (this might be preferred for Docker containers)
 exec dovecot -F
