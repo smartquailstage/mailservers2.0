@@ -7,12 +7,6 @@ GROUP="vmail"
 # Define the main directory
 MAIL_DIR="/var/mail"
 
-# Start Dovecot in the background
-echo "Starting Dovecot..."
-dovecot &
-
-# Wait a few seconds to ensure Dovecot starts up correctly
-sleep 10
 
 # Create the main mail directory if it doesn't exist
 mkdir -p "$MAIL_DIR"
