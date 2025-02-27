@@ -1,0 +1,13 @@
+# /etc/postfix/transport
+
+# Enviar correos a gmail.com a través de Google SMTP servers
+/gmail\.com$/              smtp:[gmail-smtp-in.l.google.com]
+
+# Direcciones locales en mail.smartquail.io
+/mail\.smartquail\.io$/    :
+/^support@mail.smartquail.io$/ local:
+
+/@mail.smartquail.io$/     virtual
+
+
+
