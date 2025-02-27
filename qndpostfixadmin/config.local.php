@@ -25,7 +25,7 @@ $CONF['setup_password'] = getenv('POSTFIXADMIN_SETUP_PASSWORD') ?: 'changeme';  
 $CONF['configured'] = true;  // No está configurado aún (debe ser cambiado a 'true' después de completar la configuración)
 
 // Otros parámetros adicionales
-$CONF['admin_username'] = 'support';  // Nombre de usuario del administrador
+$CONF['admin_username'] = 'support@smartquail.io';  // Nombre de usuario del administrador
 $CONF['admin_password'] = 'ms95355672';  // Contraseña del administrador
 
 // Opciones de idioma
