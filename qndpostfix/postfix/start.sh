@@ -24,10 +24,7 @@ function addUserInfo {
     adduser --system --home "/home/$user_name" --no-create-home "$user_name"
 
     # Crea el directorio de Maildir si no existe
-    mkdir -p "$user_maildir/tmp/"
-    mkdir -p "$user_maildir/new/"
-    mkdir -p "$user_maildir/cur/"
-    
+    mkdir -p "$user_maildir/tmp/" "$user_maildir/new/" "$user_maildir/cur/"
     # Ajusta los permisos del directorio de Maildir
     chown -R vmail:vmail "$user_maildir"
     chmod -R 700 "$user_maildir"
