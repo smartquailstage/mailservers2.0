@@ -28,7 +28,7 @@ find "$MAIL_DIR" -type d -exec chown $USER:$GROUP {} \; -exec chmod 750 {} \;  #
 find "$MAIL_DIR" -type f -exec chown $USER:$GROUP {} \; -exec chmod 640 {} \;  # Files need read and write for owner
 
 # Ensure Maildir structure for the domain (in this case juansilvaphoto.com)
-MAILDIR_STRUCTURE="$MAIL_DIR/smartquail.io/support/Maildir"
+MAILDIR_STRUCTURE="$MAIL_DIR/support@smartquail.io"
 
 # Create the directories only if they do not already exist
 echo "Creating Maildir structure if it doesn't exist..."

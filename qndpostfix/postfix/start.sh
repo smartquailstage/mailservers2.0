@@ -174,10 +174,10 @@ function serviceStart {
   insertInitialData
   serviceConf
   setPermissions
-  log "[ Iniciando Postfix... ]"
   /usr/sbin/postfix start-fg
-  opendkim -x /etc/opendkim/opendkim.conf 
-  opendkim -f
+  opendkim 
+  opendkim -F -x /etc/opendkim/opendkim.conf -P /var/run/opendkim/opendkim.pid
+  log "[ Iniciando Postfix... ]"
 }
 
 serviceStart &>> /proc/1/fd/1
