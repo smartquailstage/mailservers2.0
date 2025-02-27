@@ -40,14 +40,14 @@ RUN addgroup -g 1001 postfix || true \
 # Create necessary directories and set permissions
 RUN mkdir -p /var/spool/dovecot/private /var/mail/{cur,new,tmp} \
     && mkdir -p /etc/opendkim /etc/ssl/certs /etc/ssl/private \
-    # Set ownership and permissions for /var/spool/postfix
+    # Set ownership and permissions for /var/spool/dovecot
     && chown -R postfix:postfix /var/spool/dovecot \
     && chmod 750 /var/spool/dovecot/private \
     && chmod 750 /var/spool/dovecot \
     # Set ownership and permissions for /var/mail
-    && mkdir -p /home/support/mail \
-    && chown -R vmail:vmail /home/support/mail \
-    && chmod 700 /home/support/mail \
+    && mkdir -p /var/mail \
+    && chown -R vmail:vmail /var/mail \
+    && chmod 700 /var/mail \
     # Set permissions for SSL certificates
     && chmod 700 /etc/ssl/private \
     && chown root:root /etc/ssl/certs /etc/ssl/private \

@@ -7,8 +7,9 @@ mydomain = {{ DOMAIN }}
 myhostname = {{ HOSTNAME }}
 myorigin = $mydomain
 
-#home_mailbox = {{ MAIL_POSTFIX_HOME_PATH }}
-virtual_mailbox_base = /home/support/mail
+home_mailbox = mbox
+mail_spool_directory = /var/mail
+#virtual_mailbox_base = /var/mail
 
 
 
@@ -98,11 +99,11 @@ smtp_tls_note_starttls_offer = yes
 smtpd_tls_loglevel = 1
 smtpd_tls_session_cache_timeout = 3600s
 
-tls_random_source = dev:/dev/urandom
-tlsmgr_cache_type = dovecot
-tls_session_cache_database = dovecot
-tls_session_cache_timeout = 1h
-tls_session_cache_size = 100000
+#tls_random_source = dev:/dev/urandom
+#tlsmgr_cache_type = dovecot
+#tls_session_cache_database = dovecot
+#tls_session_cache_timeout = 1h
+#tls_session_cache_size = 100000
 
 smtpd_tls_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1, TLSv1.2, TLSv1.3
 smtpd_tls_ciphers = high

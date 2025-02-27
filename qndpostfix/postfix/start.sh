@@ -1,50 +1,42 @@
 #!/bin/bash
 
 # Configuración de las credenciales de PostgreSQL
-export PGPASSWORD="Support1719@"
-export POSTFIX_DB="QND41DB"
-export PPOSTFIX_USER_DB="sqadmindb"
-export POSTFIX_DB_HOST="smartquaildb"
-
-VUSER="support"
-DOMAIN="smartquail.io"
-
+export PGPASSWORD="$POSTFIX_PASSWORD_DB"
+export PGUSER="$POSTFIX_USER_DB"
+export POSTFIX_POSTGRES_DB="$POSTFIX_DB"
+export POSTFIX_POSTGRES_USER="$POSTFIX_USER_DB"
+export POSTFIX_POSTGRES_HOST="$POSTFIX_DBs_HOST"
+export DOMAIN="$DOMAIN"
 
 function log {
   echo "$(date) $ME - $@"
 }
 
 function addUserInfo {
-  local user_name="support"
-  local user_maildir="/home/${user_name}/mail/${DOMAIN}/${VUSER}/Maildir/"
+  local user_name="info"
+  local user_maildir="/var/mail/${DOMAIN}/${user_name}"
 
   # Verifica si el usuario ya existe
-  if ! id -u "$user_name" &>/dev/null; then
+  if ! getent passwd "$user_name" &>/dev/null; then
     log "Adding user '${user_name}'"
 
     # Añade el usuario con un directorio home (el directorio home no será utilizado para el correo)
-    useradd --system --home "/home/$user_name" --create-home "$user_name"
+    adduser --system --home "/home/$user_name" --no-create-home "$user_name"
 
     # Crea el directorio de Maildir si no existe
-    if [ ! -d "$user_maildir" ]; then
-      mkdir -p "$user_maildir/{tmp,new,cur}"
-
-      # Ajusta los permisos del directorio de Maildir
-      chown -R vmail:vmail "$user_maildir"
-      chmod -R 700 "$user_maildir"
-
-      log "Maildir for user '${user_name}' created at '${user_maildir}'"
-    else
-      log "Maildir for user '${user_name}' already exists"
-    fi
+    mkdir -p "$user_maildir/tmp"
+    mkdir -p "$user_maildir/new"
+    mkdir -p "$user_maildir/cur"
+    
+    # Ajusta los permisos del directorio de Maildir
+    chown -R vmail:vmail "$user_maildir"
+    chmod -R 700 "$user_maildir"
 
     log "User '${user_name}' added with maildir '${user_maildir}'"
   else
     log "User '${user_name}' already exists"
   fi
 }
-
-
 
 function createTable {
   local table_name=$1
@@ -54,12 +46,12 @@ function createTable {
 
   # Check if table exists
   local check_sql="SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '${table_name}');"
-  local table_exists=$(psql -U "$POSTFIX_USER_DB" -d "$POSTFIX_DB" -h "$POSTFIX_DB_HOST" -t -c "$check_sql")
+  local table_exists=$(psql -U "$POSTFIX_POSTGRES_USER" -d "$POSTFIX_POSTGRES_DB" -h "$POSTFIX_POSTGRES_HOST" -t -c "$check_sql")
 
   if [[ "$table_exists" =~ ^t$ ]]; then
     log "Table ${table_name} already exists, skipping creation."
   else
-    psql -U "$POSTFIX_USER_DB" -d "$POSTFIX_DB" -h "$POSTFIX_DB_HOST" -c "$table_sql"
+    psql -U "$POSTFIX_POSTGRES_USER" -d "$POSTFIX_POSTGRES_DB" -h "$POSTFIX_POSTGRES_HOST" -c "$table_sql"
     if [ $? -eq 0 ]; then
       log "${table_name} table created successfully."
     else
@@ -113,7 +105,7 @@ function insertInitialData {
     ON CONFLICT DO NOTHING;
   "
 
-  psql -U "$POSTFIX_USER_DB" -d "$POSTFIX_DB" -h "$POSTFIX_DB_HOST" -c "$insert_sql"
+  psql -U "$POSTFIX_POSTGRES_USER" -d "$POSTFIX_POSTGRES_DB" -h "$POSTFIX_POSTGRES_HOST" -c "$insert_sql"
 
   if [ $? -eq 0 ]; then
     log "Initial data inserted successfully."
@@ -121,7 +113,6 @@ function insertInitialData {
     log "Failed to insert initial data."
   fi
 }
-
 
 function serviceConf {
   if [[ ! $HOSTNAME =~ \. ]]; then
@@ -160,17 +151,17 @@ function setPermissions {
   log "Setting permissions for Postfix directories and files..."
 
   # Set ownership and permissions for Postfix directories
-  chown -R postfix:postfix /var/spool/postfix
-  chmod 750 /var/spool/postfix/private
-  chmod 750 /var/spool/postfix
+  chown -R postfix:postfix /var/spool/dovecot
+  chmod 750 /var/spool/dovecot/private
+  chmod 750 /var/spool/dovecot
 
   # Set ownership and permissions for Postfix configuration files
   chown -R root:root /etc/postfix
   chmod 640 /etc/postfix/*.cf
 
   # Set ownership and permissions for mail directories
-  chown -R postfix:postfix /home/support/mail/
-  chmod 700 /home/support/mail/
+  chown -R postfix:postfix /var/mail/
+  chmod 700 /var/mail/
 }
 
 function serviceStart {
@@ -183,7 +174,5 @@ function serviceStart {
   /usr/sbin/opendkim -x /etc/opendkim/opendkim.conf 
   /usr/sbin/postfix start-fg
 }
-
-
 
 serviceStart &>> /proc/1/fd/1

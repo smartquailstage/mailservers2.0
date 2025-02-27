@@ -61,9 +61,9 @@ RUN apt-get -y update && \
     dpkg-reconfigure -f noninteractive tzdata
 
 # Configurar permisos y propiedad para directorios
-RUN mkdir -p /home/support/mail && \
-    chown -R vmail:vmail /home/support/mail && \
-    chmod -R 700 /home/support/mail
+RUN mkdir -p /var/mail && \
+    chown -R vmail:vmail /var/mail && \
+    chmod -R 700 /var/mail
 
 EXPOSE 24
 EXPOSE 110
@@ -73,7 +73,7 @@ EXPOSE 990
 EXPOSE 993
 #EXPOSE 4190
 
-VOLUME ["/etc/dovecot", "/home/support/mail"]
+VOLUME ["/etc/dovecot", "/var/mail"]
 
 # Usar el script de inicio para arrancar el servicio
 ENTRYPOINT ["/usr/bin/tini", "--"]
