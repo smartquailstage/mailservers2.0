@@ -47,7 +47,7 @@ RUN apt-get -y update && \
       tzdata && \
     rm -rf /var/lib/apt/lists/* && \
     groupadd -g 1000 vmail && \
-    useradd -u 1000 -g 1000 vmail -d /srv/vmail && \
+    useradd -u 1000 -g 1000 vmail  -d /srv/vmail && \
     passwd -l vmail && \
     mkdir -p /srv/mail && \
     chown vmail:vmail /srv/mail && \
@@ -56,6 +56,7 @@ RUN apt-get -y update && \
     chmod 755 /var/mail && \
     mkdir -p /var/run/dovecot/ && \
     chown vmail:vmail /var/run/dovecot && \
+    chown -R postfix:postfix /var/run/dovecot \
     chmod -R 700 /var/run/dovecot && \
 
     # Configurar la zona horaria
