@@ -35,7 +35,7 @@ mydestination = $myhostname, localhost.$mydomain, localhost,
 inet_interfaces = all
 inet_protocols = all
 
-virtual_transport = lmtp:unix:/var/spool/dovecot/private/dovecot-lmtp
+virtual_transport = lmtp:unix:/var/run/dovecot/lmtp
 
 transport_maps = pcre:/etc/postfix/transport.pcre
 
@@ -120,7 +120,7 @@ smtpd_sasl_auth_enable = yes
 smtpd_sasl_type = dovecot
 
 # Ruta al socket de autenticación de Dovecot
-smtpd_sasl_path = unix:/var/spool/dovecot/private/auth
+smtpd_sasl_path = unix:/var/run/dovecot/auth-master
 
 smtp_sasl_password_maps = unix:/etc/postfix/sasl_passwd
 
