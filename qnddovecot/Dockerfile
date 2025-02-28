@@ -54,9 +54,9 @@ RUN apt-get -y update && \
     mkdir -p /var/mail && \
     chown vmail:vmail /var/mail && \
     chmod 755 /var/mail && \
-    mkdir -p /var/spool/dovecot/private && \
-    chown vmail:vmail /var/spool/dovecot/private && \
-    chmod -R 700 /var/spool/dovecot/private && \
+    mkdir -p /var/run/dovecot/ && \
+    chown vmail:vmail /var/run/dovecot && \
+    chmod -R 700 /var/run/dovecot && \
 
     # Configurar la zona horaria
     ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
