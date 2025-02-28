@@ -11,8 +11,6 @@ ARG DEBIAN_FRONTEND=noninteractive
 ADD dovecot.gpg /etc/apt/keyrings/dovecot.gpg
 ADD dovecot.list /etc/apt/sources.list.d/
 
-
-
 # Copiar el script de inicio
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
@@ -55,9 +53,9 @@ RUN apt-get -y update && \
     chown vmail:vmail /var/mail && \
     chmod 755 /var/mail && \
     mkdir -p /var/run/dovecot/ && \
-    chown vmail:vmail /var/run/dovecot && \
-    chown -R postfix:postfix /var/run/dovecot \
-    chmod -R 700 /var/run/dovecot && \
+    chown -R vmail:vmail /var/run/dovecot && \
+    chown -R postfix:postfix /var/run/dovecot && \
+    chmod -R 750 /var/run/dovecot && \
 
     # Configurar la zona horaria
     ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
