@@ -42,7 +42,6 @@ RUN mkdir -p /var/run/dovecot/ /var/spool/postfix/private \
     && mkdir -p /etc/opendkim /etc/ssl/certs /etc/ssl/private \
     # Set ownership and permissions for /var/spool/dovecot
     && chown -R postfix:postfix /var/run/dovecot \
-    && chown postfix:vmail /var/run/dovecot/auth-master \
     && chmod 750 /var/run/dovecot/ \
 
     # Set ownership and permissions for /var/spool/postfix

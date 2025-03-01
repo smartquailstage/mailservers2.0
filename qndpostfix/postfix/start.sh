@@ -148,9 +148,9 @@ function setPermissions {
   log "Setting permissions for Postfix directories and files..."
 
   # Set ownership and permissions for Postfix-Dovecot sockets directories 
-  chown -R postfix:postfix /var/spool/dovecot
-  chmod 750 /var/spool/dovecot/private
-  chmod 750 /var/spool/dovecot
+  chown -R postfix:postfix /var/run/dovecot
+  chmod 750 /var/run/dovecot/private
+  chmod 750 /var/run/dovecot
     # Set ownership and permissions for Postfix-OpendDkim sockets directories 
   chown -R postfix:postfix /var/spool/postfix
   chmod 750 /var/spool/postfix/private
