@@ -48,15 +48,6 @@ ls -ld "$MAILDIR_STRUCTURE/tmp"
 
 echo "Permissions and ownership have been set."
 
-# Start Dovecot in the background
-dovecot &
-
-# Wait for Dovecot to create the sockets
-echo "Waiting for Dovecot to create the sockets..."
-while [ ! -S /var/run/dovecot/auth-client ]; do
-  sleep 1
-done
-
 # Set permissions for Dovecot sockets
 echo "Setting permissions for Dovecot sockets..."
 chown postfix:postfix /var/run/dovecot/auth-client
