@@ -120,7 +120,7 @@ smtpd_sasl_auth_enable = yes
 smtpd_sasl_type = dovecot
 
 # Ruta al socket de autenticación de Dovecot
-smtpd_sasl_path = unix:/var/run/dovecot/auth-master
+smtpd_sasl_path = unix:/var/run/dovecot/auth-client
 
 smtp_sasl_password_maps = unix:/etc/postfix/sasl_passwd
 
