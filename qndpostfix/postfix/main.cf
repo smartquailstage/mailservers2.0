@@ -61,27 +61,28 @@ smtpd_helo_required = yes
 
 
 smtpd_sender_restrictions =
-    permit_mynetworks,                 
-    permit_sasl_authenticated,         
-    reject_non_fqdn_sender,            
-    reject_unknown_sender_domain,     
-    reject_unlisted_sender,            
-    reject_sender_login_mismatch       
-
-smtpd_relay_restrictions =
-    permit_mynetworks,                
-    permit_sasl_authenticated,         
-    reject_unauth_destination          
-
-smtpd_client_restrictions =
-
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_non_fqdn_sender,
+    reject_unknown_sender_domain,
+    reject_unlisted_sender,
+    reject_sender_login_mismatch,
+    permit
 
 smtpd_recipient_restrictions =
-    permit_mynetworks,                 
-    permit_sasl_authenticated,         
-    reject_unauth_destination,         
-    reject_non_fqdn_recipient,         
-    reject_unknown_recipient_domain    
+    permit_mynetworks,
+    reject_unauth_destination,
+    permit
+
+smtpd_relay_restrictions =
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_unauth_destination,
+
+smtpd_client_restrictions =
+    permit_mynetworks,
+    reject_unknown_client,
+    permit
 
 smtpd_relay_before_recipient_restrictions = no
 
