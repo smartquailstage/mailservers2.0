@@ -4,5 +4,5 @@ echo "Permissions and ownership have been set."
 echo "Setting permissions for Dovecot sockets..."
 chown postfix:postfix /var/run/dovecot/auth-client
 chmod 660 /var/run/dovecot/auth-client
-chown postfix:postfix /var/run/dovecot/ltmp
-chmod 660 /var/run/dovecot/ltmp
+chown postfix:postfix /var/run/dovecot/lmtp
+chmod 660 /var/run/dovecot/lmtp
