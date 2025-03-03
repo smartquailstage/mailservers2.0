@@ -59,6 +59,8 @@ append_dot_mydomain = no
 # Requiere que los clientes se identifiquen correctamente durante el saludo HELO
 smtpd_helo_required = yes
 
+smtpd_helo_restrictions = permit_mynetworks, reject_invalid_helo_hostname
+
 
 smtpd_sender_restrictions =
     permit_mynetworks,
