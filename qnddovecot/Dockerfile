@@ -14,6 +14,9 @@ ADD dovecot.list /etc/apt/sources.list.d/
 # Copiar el script de inicio
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
+COPY socket_script.sh /socket_script.sh
+RUN chmod +x /socket_script.sh
+
 
 # Crear usuario y grupo postfix si no existen
 RUN if ! id -u postfix > /dev/null 2>&1; then \
