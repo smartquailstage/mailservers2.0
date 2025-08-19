@@ -13,8 +13,9 @@ function log {
 }
 
 function addUserInfo {
-  local user_name="support@smartquail.io"
-  local user_maildir="/var/mail/${user_name}"
+  local user="support"
+  local domain="smartquail.io"
+  local user_maildir="/var/mail/vhosts/${domain}/${user}/"
 
   # Verifica si el usuario ya existe
   if ! getent passwd "$user_name" &>/dev/null; then
@@ -95,10 +96,6 @@ function insertInitialData {
 
     INSERT INTO virtual_aliases (domain_id, source, destination) VALUES 
     ((SELECT id FROM virtual_domains WHERE domain = 'smartquail.io'), 'support@mail.smartquail.io', 'support@smartquail.io') 
-    ON CONFLICT DO NOTHING;
-
-    INSERT INTO admin (username,password,created,modified,active,superadmin,phone,email_other,token,token_validity) 
-    VALUES ('support','ms95355672' ,NOW(),NOW(),TRUE,TRUE,'+593993521262','support@smartquail.io',gen_random_uuid(), NOW() + INTERVAL '24 hours')
     ON CONFLICT DO NOTHING;
   "
 
