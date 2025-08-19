@@ -35,7 +35,8 @@ mydestination = $myhostname, localhost.$mydomain, localhost,smartquail.io
 inet_interfaces = all
 inet_protocols = all
 
-virtual_transport = lmtp:unix:/var/spool/dovecot/private/dovecot-lmtp
+virtual_transport = lmtp:inet:dovecot-lmtp:24
+
 
 transport_maps = pcre:/etc/postfix/transport.pcre
 
