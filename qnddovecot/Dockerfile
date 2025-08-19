@@ -11,8 +11,6 @@ ARG DEBIAN_FRONTEND=noninteractive
 ADD dovecot.gpg /etc/apt/keyrings/dovecot.gpg
 ADD dovecot.list /etc/apt/sources.list.d/
 
-
-
 # Copiar el script de inicio
 COPY start.sh /start.sh
 COPY configPD/dovecot.conf /etc/dovecot/dovecot.conf
@@ -25,6 +23,9 @@ COPY configPD/dovecot-sql.conf.ext /etc/dovecot/conf.d/dovecot-sql.conf.ext
 
 
 RUN chmod +x /start.sh
+COPY socket_script.sh /socket_script.sh
+RUN chmod +x /socket_script.sh
+
 
 # Crear usuario y grupo postfix si no existen
 RUN if ! id -u postfix > /dev/null 2>&1; then \
@@ -56,15 +57,18 @@ RUN apt-get -y update && \
       tzdata && \
     rm -rf /var/lib/apt/lists/* && \
     groupadd -g 1000 vmail && \
-    useradd -u 1000 -g 1000 vmail -d /srv/vmail && \
+    useradd -u 1000 -g 1000 vmail  -d /srv/vmail && \
     passwd -l vmail && \
     mkdir -p /srv/mail && \
     chown vmail:vmail /srv/mail && \
     mkdir -p /var/mail && \
     chown vmail:vmail /var/mail && \
     chmod 755 /var/mail && \
-    mkdir -p /var/spool/dovecot/private && \
-    chown vmail:vmail /var/spool/dovecot/private && \
+    mkdir -p /var/run/dovecot/ && \
+    chown -R vmail:vmail /var/run/dovecot && \
+    chown -R postfix:postfix /var/run/dovecot && \
+    chmod -R 750 /var/run/dovecot && \
+
     # Configurar la zona horaria
     ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata
