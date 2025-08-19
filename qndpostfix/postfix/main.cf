@@ -30,7 +30,7 @@ mailbox_size_limit = {{ MAILBOX_SIZE_LIMIT }}
 
 mynetworks = 127.0.0.0/8, [::1]/128, 192.168.1.0/24, 24.199.118.145 ,{{ POSTFIX_IP }}, 64.18.0.0/20, 64.233.160.0/19, 66.102.0.0/20, 66.249.80.0/20, 72.14.192.0/18, 74.125.0.0/16, 108.177.0.0/17, 173.194.0.0/16, 209.85.128.0/17, 216.58.192.0/19, 35.190.0.0/17
 
-mydestination = $myhostname, localhost.$mydomain, localhost,smartquail.io
+mydestination = $myhostname, localhost.$mydomain, localhost
 
 inet_interfaces = all
 inet_protocols = all
