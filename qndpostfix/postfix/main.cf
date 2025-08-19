@@ -122,22 +122,24 @@ smtpd_sasl_auth_enable = yes
 # Especificar que el tipo de autenticación es Dovecot
 smtpd_sasl_type = dovecot
 
-# Ruta al socket de autenticación de Dovecot
-smtpd_sasl_path = unix:/var/spool/dovecot/private/auth
+# Dirección TCP del servicio SASL de Dovecot (ajusta el puerto y nombre del servicio)
+smtpd_sasl_path = inet:dovecot-sasl:12345
 
-smtp_sasl_password_maps = unix:/etc/postfix/sasl_passwd
+# (Opcional) Mapa de contraseñas SMTP para enviar correos a través de un relay
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
 
 # Añadir un encabezado 'Authenticated-By' a los correos de usuarios autenticados
 smtpd_sasl_authenticated_header = yes
 
-# Impedir la autenticación anónima (seguridad)
+# Impedir la autenticación anónima
 smtpd_sasl_security_options = noanonymous
 
-# Impedir la autenticación anónima en conexiones TLS (seguridad)
+# Impedir la autenticación anónima incluso si TLS está activo
 smtpd_sasl_tls_security_options = noanonymous
 
-# Configurar el dominio local para la autenticación (por defecto es el hostname)
+# Configurar el dominio local para la autenticación
 smtpd_sasl_local_domain = $myhostname
+
 
 
 ###############
