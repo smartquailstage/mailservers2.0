@@ -21,8 +21,9 @@ alias_maps =
 
 
 # Message size limit
-message_size_limit = {{ MESSAGE_SIZE_LIMIT }}
-mailbox_size_limit = {{ MAILBOX_SIZE_LIMIT }}
+message_size_limit = 52428800
+mailbox_size_limit = 0
+
 
 
 # Relayed networks
@@ -35,7 +36,9 @@ mydestination = $myhostname, localhost.$mydomain, localhost
 inet_interfaces = all
 inet_protocols = all
 
-virtual_transport = lmtp:inet:dovecot-lmtp:24
+virtual_transport = lmtp:inet:dovecot-lmtp.mail-srv.svc.cluster.local:24
+
+
 
 
 transport_maps = pcre:/etc/postfix/transport.pcre
