@@ -1,2 +1,2 @@
 #[{{ POSTFIX_RELAY }}]:{{ POSTFIX_RELAY_PORT }}    {{ POSTFIX_RELAY_USER }}:{{ POSTFIX_RELAY_PASSWOR }}
-[smtp.mail.smartquail.io]:587    support:ms95355672
+[smtp.mail.smartquail.io]:587    support:ms95355672@

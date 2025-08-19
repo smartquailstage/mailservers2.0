@@ -15,6 +15,15 @@ ADD dovecot.list /etc/apt/sources.list.d/
 
 # Copiar el script de inicio
 COPY start.sh /start.sh
+COPY configPD/dovecot.conf /etc/dovecot/dovecot.conf
+COPY configPD/10-master.conf /etc/dovecot/conf.d/10-master.conf
+COPY configPD/10-auth.conf /etc/dovecot/conf.d/10-auth.conf
+COPY configPD/10-mail.conf /etc/dovecot/conf.d/10-mail.conf
+COPY configPD/10-passdb.conf /etc/dovecot/conf.d/10-passdb.conf
+COPY configPD/auth-sql.conf.ext /etc/dovecot/conf.d/auth-sql.conf.ext 
+COPY configPD/dovecot-sql.conf.ext /etc/dovecot/conf.d/dovecot-sql.conf.ext 
+
+
 RUN chmod +x /start.sh
 
 # Crear usuario y grupo postfix si no existen

@@ -35,7 +35,7 @@ mydestination = $myhostname, localhost.$mydomain, localhost,
 inet_interfaces = all
 inet_protocols = all
 
-virtual_transport = lmtp:unix:/var/spool/dovecot/private/dovecot-lmtp
+virtual_transport = lmtp:unix:/var/spool/postfix/private/dovecot-lmtp
 
 transport_maps = pcre:/etc/postfix/transport.pcre
 
@@ -119,8 +119,9 @@ smtpd_sasl_auth_enable = yes
 # Especificar que el tipo de autenticación es Dovecot
 smtpd_sasl_type = dovecot
 
-# Ruta al socket de autenticación de Dovecot
-smtpd_sasl_path = unix:/var/spool/dovecot/private/auth
+# CAMBIO IMPORTANTE: Usar conexión TCP en lugar de socket Unix
+# Esto hace que Postfix se conecte al servicio Dovecot via red interna k8s
+smtpd_sasl_path = inet:dovecot-sasl:12345
 
 smtp_sasl_password_maps = unix:/etc/postfix/sasl_passwd
 
