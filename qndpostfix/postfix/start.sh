@@ -18,21 +18,22 @@ function addUserInfo {
   local user_maildir="/var/mail/vhosts/${domain}/${user}/"
 
   # Verifica si el usuario ya existe
-  if ! getent passwd "$user_name" &>/dev/null; then
-    log "Adding user '${user_name}'"
+  if ! getent passwd "$user" &>/dev/null; then
+    log "Adding user '${user}'"
 
     # Añade el usuario con un directorio home (el directorio home no será utilizado para el correo)
-    adduser --system --home "/home/$user_name" --no-create-home "$user_name"
+    adduser --system --home "/home/$user" --no-create-home "$user"
 
     # Crea el directorio de Maildir si no existe
     mkdir -p "$user_maildir/tmp/" "$user_maildir/new/" "$user_maildir/cur/"
+    
     # Ajusta los permisos del directorio de Maildir
     chown -R vmail:vmail "$user_maildir"
     chmod -R 700 "$user_maildir"
 
-    log "User '${user_name}' added with maildir '${user_maildir}'"
+    log "User '${user}' added with maildir '${user_maildir}'"
   else
-    log "User '${user_name}' already exists"
+    log "User '${user}' already exists"
   fi
 }
 
