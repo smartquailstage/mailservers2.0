@@ -16,21 +16,22 @@ function log {
 function addUserInfo {
   local user="support"
   local domain="smartquail.io"
-  local user_maildir="/var/mail/vhosts/${domain}/${user}/"
+  local mail_home="/var/mail/vhosts/${domain}/${user}"
+  local user_maildir="${mail_home}/Maildir"
 
   # Verifica si el usuario ya existe
   if ! getent passwd "$user" &>/dev/null; then
     log "Adding user '${user}'"
 
-    # Añade el usuario con un directorio home (el directorio home no será utilizado para el correo)
-    adduser --system --home "/home/$user" --no-create-home "$user"
+    # Añade el usuario con un directorio home (que no se usará realmente para correo)
+    adduser --system --home "/nonexistent" --no-create-home "$user"
 
-    # Crea el directorio de Maildir si no existe
-    mkdir -p "$user_maildir/tmp/" "$user_maildir/new/" "$user_maildir/cur/"
-    
-    # Ajusta los permisos del directorio de Maildir
-    chown -R vmail:vmail "$user_maildir"
-    chmod -R 700 "$user_maildir"
+    # Crea el Maildir si no existe
+    mkdir -p "${user_maildir}/tmp" "${user_maildir}/new" "${user_maildir}/cur"
+
+    # Ajusta permisos del directorio
+    chown -R vmail:vmail "$mail_home"
+    chmod -R 700 "$mail_home"
 
     log "User '${user}' added with maildir '${user_maildir}'"
   else
