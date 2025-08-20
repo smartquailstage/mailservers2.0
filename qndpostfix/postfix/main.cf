@@ -36,7 +36,7 @@ mydestination = $myhostname, localhost.$mydomain, localhost
 inet_interfaces = all
 inet_protocols = all
 
-virtual_transport = lmtp:inet:dovecot-lmtp.mail-srv.svc.cluster.local:24
+virtual_transport = lmtp:inet:dovecot-lmtp:24
 
 
 

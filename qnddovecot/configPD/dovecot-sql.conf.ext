@@ -1,5 +1,5 @@
 driver = pgsql
-connect = host=smartquaildb dbname=QND041MAILDB user=sqadmindb password=Support1719@
+connect = host=smartquaildb dbname=QND041MAILDB user=sqadmindb password="Support1719@"
 default_pass_scheme = PLAIN
 
 # Consulta para obtener la ubicación del buzón
