@@ -74,9 +74,9 @@ COPY opendkim/TrustedHosts /etc/opendkim/TrustedHosts
 
 ENV TZ=America/Guayaquil
 
-RUN apt-get update && apt-get install -y tzdata && \
-    ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
-    dpkg-reconfigure -f noninteractive tzdata
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone
 
 
 
