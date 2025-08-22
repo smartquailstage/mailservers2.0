@@ -2,11 +2,6 @@ FROM php:8.3-apache
 LABEL maintainer="David Goodwin <david@codepoets.co.uk> (@DavidGoodwin)"
 
 
-ENV TZ=America/Guayaquil
-
-RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
-    dpkg-reconfigure -f noninteractive tzdata
-	
 
 # docker-entrypoint.sh dependencies
 RUN set -eux; \
@@ -23,7 +18,7 @@ RUN set -ex; \
 	\
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
-	libc-client2007e-dev \
+	libc-client-dev \
 	libkrb5-dev \
 	libpq-dev \
 	libsqlite3-dev \
