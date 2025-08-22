@@ -27,8 +27,7 @@ RUN apk update && apk add --no-cache \
     pcre \
     db \
     gdbm \
-    opendkim \
-    tzdata
+    opendkim 
 
 
 # Create postfix, vmail, and opendkim users and groups if they do not exist
@@ -75,8 +74,10 @@ COPY opendkim/TrustedHosts /etc/opendkim/TrustedHosts
 
 ENV TZ=America/Guayaquil
 
-RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
+RUN apt-get update && apt-get install -y tzdata && \
+    ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata
+
 
 
 
