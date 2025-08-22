@@ -47,7 +47,7 @@ virtual_transport = lmtp:inet:dovecot-lmtp.mail-srv.svc.cluster.local:24
 transport_maps = pcre:/etc/postfix/transport.pcre
 
 # Relayhost if any is configured
-relayhost = [smtp.mail.smartquail.io]:30587
+relayhost = [smtp.mail.smartquail.io]:30254
 
 relay_domains = 
 
