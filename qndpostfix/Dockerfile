@@ -27,7 +27,8 @@ RUN apk update && apk add --no-cache \
     pcre \
     db \
     gdbm \
-    opendkim 
+    opendkim \
+    tzdata
 
 
 # Create postfix, vmail, and opendkim users and groups if they do not exist
@@ -71,7 +72,6 @@ COPY opendkim/opendkim.conf /etc/opendkim/opendkim.conf
 COPY opendkim/KeyTable /etc/opendkim/KeyTable  
 COPY opendkim/SigningTable /etc/opendkim/SigningTable
 COPY opendkim/TrustedHosts /etc/opendkim/TrustedHosts  
-
 
 ENV TZ=America/Guayaquil
 
