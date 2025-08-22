@@ -19,7 +19,7 @@
     COPY configPD/10-mail.conf /etc/dovecot/conf.d/10-mail.conf
     COPY configPD/10-passdb.conf /etc/dovecot/conf.d/10-passdb.conf
     COPY configPD/auth-sql.conf.ext /etc/dovecot/conf.d/auth-sql.conf.ext 
-    COPY configPD/dovecot-sql.conf.ext /etc/dovecot/conf.d/dovecot-sql.conf.ext 
+    COPY configPD/dovecot-sql.conf.ext /etc/dovecot/dovecot-sql.conf.ext
     COPY configPD/10-logging.conf /etc/dovecot/conf.d/10-logging.conf
 
 
