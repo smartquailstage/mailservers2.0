@@ -1,5 +1,10 @@
     FROM debian:11-slim
 
+    ENV TZ=America/Guayaquil
+
+    RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata
+
     LABEL org.opencontainers.image.authors="dovecot@dovecot.org"
 
     ENV container=docker \

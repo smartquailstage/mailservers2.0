@@ -2,6 +2,10 @@
 FROM alpine:3.16
 
 LABEL maintainer="your-email@example.com"
+ENV TZ=America/Guayaquil
+
+RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata
 
 
 

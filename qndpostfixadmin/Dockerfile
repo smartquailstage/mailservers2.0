@@ -1,6 +1,13 @@
 FROM php:8.3-apache
 LABEL maintainer="David Goodwin <david@codepoets.co.uk> (@DavidGoodwin)"
 
+
+ENV TZ=America/Guayaquil
+
+RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata
+	
+
 # docker-entrypoint.sh dependencies
 RUN set -eux; \
 	apt-get update; \
