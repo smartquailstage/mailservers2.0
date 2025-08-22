@@ -78,7 +78,9 @@
     # Configurar permisos y propiedad para directorios
     RUN mkdir -p /var/mail && \
         chown -R vmail:vmail /var/mail && \
-        chmod -R 750 /var/mail
+        chmod 755 /var/mail && \
+        find /var/mail -type d -exec chmod 700 {} \; && \
+        find /var/mail -type f -exec chmod 600 {} \;
 
     EXPOSE 24
     EXPOSE 110
