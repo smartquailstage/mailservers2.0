@@ -126,7 +126,7 @@ smtp_tls_loglevel = 1
 smtpd_sasl_auth_enable = yes
 
 # Especificar que el tipo de autenticación es Dovecot
-#smtpd_sasl_type = dovecot
+smtpd_sasl_type = dovecot
 
 # Dirección TCP del servicio SASL de Dovecot (ajusta el puerto y nombre del servicio)
 smtpd_sasl_path = inet:dovecot-sasl:12345
