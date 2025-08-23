@@ -7,9 +7,9 @@ mydomain = smartquail.io
 myhostname = mail.smartquail.io
 myorigin = $mydomain
 
-home_mailbox = mbox
-mail_spool_directory = /var/mail/vhosts/
-#virtual_mailbox_base = /var/mail
+home_mailbox = Maildir/
+virtual_mailbox_base = /var/mail/vhosts
+virtual_mailbox_maps = hash:/etc/postfix/virtual
 
 
 
