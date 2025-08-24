@@ -87,13 +87,12 @@
         find /var/mail -type d -exec chmod 700 {} \; && \
         find /var/mail -type f -exec chmod 600 {} \;
 
-    EXPOSE 24
-    EXPOSE 110
-    EXPOSE 143
-    #EXPOSE 587
-    EXPOSE 990
-    EXPOSE 993
-    #EXPOSE 4190
+    # EXPOSE correctos:
+    EXPOSE 24     # LMTP personalizado
+    EXPOSE 110    # POP3
+    EXPOSE 143    # IMAP
+    EXPOSE 993    # IMAPS
+    EXPOSE 995    # POP3S
 
     VOLUME ["/etc/dovecot", "/var/mail"]
 
