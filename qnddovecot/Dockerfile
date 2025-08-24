@@ -1,9 +1,5 @@
     FROM debian:11-slim
 
-    ENV TZ=America/Guayaquil
-
-    RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
-    dpkg-reconfigure -f noninteractive tzdata
 
     LABEL org.opencontainers.image.authors="dovecot@dovecot.org"
 
@@ -19,11 +15,11 @@
     # Copiar el script de inicio
     COPY start.sh /start.sh
     COPY configPD/dovecot.conf /etc/dovecot/dovecot.conf
-    COPY configPD/10-master.conf /etc/dovecot/conf.d/10-master.conf
-    COPY configPD/10-auth.conf /etc/dovecot/conf.d/10-auth.conf
-    COPY configPD/10-mail.conf /etc/dovecot/conf.d/10-mail.conf
-    COPY configPD/10-passdb.conf /etc/dovecot/conf.d/10-passdb.conf
-    COPY configPD/auth-sql.conf.ext /etc/dovecot/conf.d/auth-sql.conf.ext 
+    COPY configPD/10-master.conf /etc/dovecot/10-master.conf
+    COPY configPD/10-auth.conf /etc/dovecot/10-auth.conf
+    COPY configPD/10-mail.conf /etc/dovecot/10-mail.conf
+    COPY configPD/10-passdb.conf /etc/dovecot/10-passdb.conf
+    COPY configPD/auth-sql.conf.ext /etc/dovecot/auth-sql.conf.ext 
     COPY configPD/dovecot-sql.conf.ext /etc/dovecot/dovecot-sql.conf.ext
     COPY configPD/10-logging.conf /etc/dovecot/conf.d/10-logging.conf
 
@@ -93,6 +89,7 @@
     EXPOSE 143   
     EXPOSE 993    
     EXPOSE 995    
+    EXPOSE 4190
 
     VOLUME ["/etc/dovecot", "/var/mail"]
 
