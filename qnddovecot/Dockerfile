@@ -8,6 +8,8 @@
         TZ=America/Guayaquil
     ARG DEBIAN_FRONTEND=noninteractive
 
+    RUN ln -s /proc/self/mounts /etc/mtab
+
     # Añadir claves y fuentes de APT
     ADD dovecot.gpg /etc/apt/keyrings/dovecot.gpg
     ADD dovecot.list /etc/apt/sources.list.d/
