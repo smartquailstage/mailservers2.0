@@ -58,6 +58,14 @@
         ca-certificates \
         ssl-cert \
         vim \
+        net-tools \             
+        iproute2 \              
+        iputils-ping \          
+        telnet \                
+        dnsutils \               
+        curl \                  
+        lsof \                   
+        strace \                
         tzdata && \
         rm -rf /var/lib/apt/lists/* && \
         groupadd -g 1000 vmail && \
