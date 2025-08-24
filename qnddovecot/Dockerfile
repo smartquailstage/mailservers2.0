@@ -19,7 +19,7 @@
     # Copiar el script de inicio
     COPY start.sh /start.sh
     COPY configPD/dovecot.conf /etc/dovecot/dovecot.conf
-    COPY configPD/10-master.conf /etc/dovecot/conf.d/10-master.conf
+    COPY configPD/10-master.conf /etc/dovecot/10-master.conf
     COPY configPD/10-auth.conf /etc/dovecot/conf.d/10-auth.conf
     COPY configPD/10-mail.conf /etc/dovecot/conf.d/10-mail.conf
     COPY configPD/10-passdb.conf /etc/dovecot/conf.d/10-passdb.conf
