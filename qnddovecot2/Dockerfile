@@ -1,3 +1,103 @@
+FROM debian:12-slim as build
+
+ENV container=docker \
+    LC_ALL=C.UTF-8
+ARG DEBIAN_FRONTEND=noninteractive
+ARG DOVECOT_REPO_URL=https://github.com/dovecot/core
+ARG PIGEONHOLE_REPO_URL=https://github.com/dovecot/pigeonhole
+ARG DOVECOT_VERSION=2.4.0
+ARG PIGEONHOLE_VERSION=2.4.0
+ARG DOVECOT_BRANCH=$DOVECOT_VERSION
+ARG PIGEONHOLE_BRANCH=$PIGEONHOLE_VERSION
+ARG EXTRA_CFLAGS=""
+ARG EXTRA_LDFLAGS=""
+
+RUN mkdir /dovecot
+RUN apt-get -y update
+RUN apt-get -y install --no-install-recommends \
+  git \
+  build-essential \
+  ca-certificates \
+  make \
+  autoconf \
+  automake \
+  libtool \
+  gettext \
+  pkg-config \
+  bison \
+  flex \
+  libssl-dev \
+  libldap2-dev \
+  libbz2-dev \
+  zlib1g-dev \
+  liblz4-dev \
+  libzstd-dev \
+  libcap-dev \
+  libsodium-dev \
+  libunwind-dev \
+  libwrap0-dev \
+  libkrb5-dev \
+  libpq-dev \
+  libsqlite3-dev \
+  libexpat1-dev \
+  liblua5.3-dev \
+  libxapian-dev \
+  libstemmer-dev \
+  libsasl2-dev \
+  libicu-dev \
+  krb5-multidev \
+  libdb-dev \
+  libcurl4-gnutls-dev \
+  libexpat-dev \
+  libexttextcat-dev \
+  autotools-dev \
+  openssh-client \
+  default-libmysqlclient-dev \
+  wget
+WORKDIR /root/build/core
+RUN git clone -b $DOVECOT_BRANCH $DOVECOT_REPO_URL .
+RUN env VERSION=$DOVECOT_VERSION ./autogen.sh
+RUN env CFLAGS="-O2 -pipe -g -mtune=generic" ./configure \
+    --with-ldap=plugin \
+    --with-sql=plugin \
+    --with-lua=plugin \
+    --with-pgsql \
+    --with-mysql \
+    --with-sqlite \
+    --with-gssapi=plugin \
+    --with-solr \
+    --with-flatcurve \
+    --with-icu \
+    --with-lz4 \
+    --enable-experimental-mail-utf8 \
+    --prefix=/dovecot \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --docdir=\${prefix}/share/doc/dovecot-core \
+    --with-rundir=/run/dovecot \
+    --disable-rpath \
+    --disable-static
+
+RUN make -j V=0
+RUN make install-strip
+WORKDIR /root/build/pigeonhole
+RUN git clone -b $PIGEONHOLE_BRANCH $PIGEONHOLE_REPO_URL .
+RUN env VERSION=$PIGEONHOLE_VERSION ./autogen.sh
+RUN env CFLAGS="-O2 -pipe -g -mtune=generic" ./configure \
+    --with-dovecot=/root/build/core \
+    --with-ldap=plugin \
+    --prefix=/dovecot \
+    --sysconfdir=/etc \
+    --docdir=\${prefix}/share/doc/dovecot-core \
+    --disable-rpath \
+    --disable-static \
+    --with-unfinished-features
+
+RUN make -j V=0
+RUN make install-strip
+RUN wget https://github.com/dovecot/imaptest/releases/download/latest/imaptest-x86_64-debian-12 -O /dovecot/bin/imaptest
+RUN chmod 0755 /dovecot/bin/imaptest
+
 FROM debian:12-slim as production
 
 LABEL org.opencontainers.image.authors="dovecot@dovecot.org"
