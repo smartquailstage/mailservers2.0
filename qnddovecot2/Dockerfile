@@ -33,7 +33,6 @@ RUN apt-get -y update && apt-get -y install \
   passwd -l vmail && \
   rm -rf /etc/dovecot && \
   mkdir -p /var/mail && \
-  chown root:root /var/mail && \
   chmod 755 /var/mail && \
   make-ssl-cert generate-default-snakeoil && \
   mkdir /etc/dovecot && \
@@ -53,5 +52,10 @@ EXPOSE 4190
 
 VOLUME ["/etc/dovecot", "/var/mail"]
 
+# Permisos de acceso corregidos para /var/mail en ENTRYPOINT
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["/usr/sbin/dovecot", "-F"]
+
+CMD ["/bin/sh", "-c", "\
+  chmod o+x /var/mail && \
+  find /var/mail/vhosts -type d -exec chmod o+x {} \; && \
+  exec /usr/sbin/dovecot -F"]
