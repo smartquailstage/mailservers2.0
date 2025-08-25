@@ -192,6 +192,7 @@ RUN apt-get -y update && \
  dpkg --remove --force-remove-essential --force-depends apt dpkg gzip diffutils findutils init-system-helpers sysvinit-utils coreutils mount
 
 COPY dovecot.conf /etc/dovecot/dovecot.conf
+COPY dovecot-sql.conf.ext /etc/dovecot/dovecot-sql.conf.ext
 
 EXPOSE 143
 EXPOSE 993

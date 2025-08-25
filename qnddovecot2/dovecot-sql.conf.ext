@@ -1,0 +1,10 @@
+driver = pgsql
+connect = host=smartquaildb dbname=QND041MAILDB user=sqadmindb password=Support1719@
+default_pass_scheme = PLAIN
+
+# Consulta para obtener la ubicación del buzón
+user_query = SELECT email AS user, '/var/mail/vhosts/' || split_part(email, '@', 2) || '/' || split_part(email, '@', 1) || '/Maildir' AS home FROM virtual_users WHERE email = '%u'
+
+
+# Consulta para obtener la contraseña del usuario
+password_query = SELECT email AS user, password FROM virtual_users WHERE email = '%u';
