@@ -52,10 +52,6 @@ EXPOSE 4190
 
 VOLUME ["/etc/dovecot", "/var/mail"]
 
-# Permisos de acceso corregidos para /var/mail en ENTRYPOINT
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
-CMD ["/bin/sh", "-c", "\
-  chmod o+x /var/mail && \
-  find /var/mail/vhosts -type d -exec chmod o+x {} \; && \
-  exec /usr/sbin/dovecot -F"]
+CMD /bin/sh -c "chmod o+x /var/mail && find /var/mail/vhosts -type d -exec chmod o+x {} \; && exec /usr/sbin/dovecot -F"
