@@ -54,4 +54,4 @@ VOLUME ["/etc/dovecot", "/var/mail"]
 
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
-CMD /bin/sh -c "chmod o+x /var/mail && find /var/mail/vhosts -type d -exec chmod o+x {} \; && exec /usr/sbin/dovecot -F"
+CMD ["/start.sh"]
