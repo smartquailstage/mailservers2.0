@@ -29,11 +29,12 @@ RUN apt-get -y update && apt-get -y install \
   ssl-cert && \
   rm -rf /var/lib/apt/lists && \
   groupadd -g 1000 vmail && \
-  useradd -u 1000 -g 1000 vmail -d /srv/vmail && \
+  useradd -u 1000 -g 1000 vmail -d /var/mail/vmail -m && \
   passwd -l vmail && \
   rm -rf /etc/dovecot && \
-  mkdir /srv/mail && \
-  chown vmail:vmail /srv/mail && \
+  mkdir -p /var/mail && \
+  chown root:root /var/mail && \
+  chmod 755 /var/mail && \
   make-ssl-cert generate-default-snakeoil && \
   mkdir /etc/dovecot && \
   ln -s /etc/ssl/certs/ssl-cert-snakeoil.pem /etc/dovecot/cert.pem && \
@@ -50,6 +51,7 @@ EXPOSE 990
 EXPOSE 993
 EXPOSE 4190
 
-VOLUME ["/etc/dovecot", "/srv/mail"]
+VOLUME ["/etc/dovecot", "/var/mail"]
+
 ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["/usr/sbin/dovecot", "-F"]
