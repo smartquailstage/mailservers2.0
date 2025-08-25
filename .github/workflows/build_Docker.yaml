@@ -33,6 +33,30 @@ jobs:
       run: | 
         docker push smartquail/qnddovecot200 --all-tags
 
+  Docker_dovecot_container_build_2:
+    runs-on: ubuntu-latest
+    env:
+      DOMAIN: smartquail.io
+      HOSTNAME: imap.smartquail.io
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3 
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    - name: Build container image
+      working-directory: ./qnddovecot2
+      run: | 
+        docker build -f Dockerfile \
+            -t smartquail/qnddovecot300:latest \
+            -t smartquail/qnddovecot300:${GITHUB_SHA::2}-${GITHUB_RUN_ID::2} \
+            .
+    - name: Push Image
+      run: | 
+        docker push smartquail/qnddovecot300 --all-tags
+
   Docker_postfix_container_build:
     runs-on: ubuntu-latest
     env:
