@@ -42,6 +42,7 @@ RUN apt-get -y update && apt-get -y install \
 ADD dovecot.conf /etc/dovecot/dovecot.conf
 COPY dovecot-sql.conf.ext /etc/dovecot/dovecot-sql.conf.ext
 COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
 EXPOSE 24
 EXPOSE 110
