@@ -16,7 +16,7 @@ function log {
 function addUserInfo {
   local user="support"
   local domain="smartquail.io"
-  local mail_home="/var/mail/vhosts/${domain}/${user}"
+  local mail_home="/var/mailbox/vhosts/${domain}/${user}"
   local user_maildir="${mail_home}/Maildir"
 
   # Verifica si el usuario ya existe
@@ -161,8 +161,8 @@ function setPermissions {
   chmod 640 /etc/postfix/*.cf
 
   # Set ownership and permissions for mail directories
-  chown -R postfix:postfix /var/mail/
-  chmod 700 /var/mail/
+  chown -R postfix:postfix /var/mailbox/
+  chmod 700 /var/mailbox/
 }
 
 function serviceStart {

@@ -50,9 +50,9 @@ RUN mkdir -p /var/run/dovecot/ /var/spool/postfix/private \
     && chmod 750 /var/spool/postfix/private \
     && chmod 750 /var/spool/postfix \
     # Set ownership and permissions for /var/mail
-    && mkdir -p /var/mail \
-    && chown -R vmail:vmail /var/mail \
-    && chmod 700 /var/mail \
+    && mkdir -p /var/mailbox \
+    && chown -R vmail:vmail /var/mailbox \
+    && chmod 700 /var/mailbox \
     # Set permissions for SSL certificates
     && chmod 700 /etc/ssl/private \
     && chown root:root /etc/ssl/certs /etc/ssl/private \
@@ -85,7 +85,7 @@ RUN apk add --no-cache tzdata && \
 EXPOSE 25 465 587 8891
 
 # Define the volume
-VOLUME ["/var/mail/"]
+VOLUME ["/var/mailbox/"]
 
 # Define entrypoint script to start both OpenDKIM and Postfix
 COPY postfix/start.sh /usr/local/bin/start.sh

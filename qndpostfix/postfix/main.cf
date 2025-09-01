@@ -8,8 +8,8 @@ myhostname = mail.smartquail.io
 myorigin = $mydomain
 
 home_mailbox = mbox
-mail_spool_directory = /var/mail/vhosts/
-#virtual_mailbox_base = /var/mail
+mail_spool_directory = /var/mailbox/vhosts/
+#virtual_mailbox_base = /var/mailbox
 
 
 
