@@ -29,7 +29,7 @@ RUN apt-get -y update && apt-get -y install \
   ssl-cert && \
   rm -rf /var/lib/apt/lists && \
   groupadd -g 1000 vmail && \
-  useradd -u 1000 -g 1000 vmail -d /var/mailbox/vmail -m && \
+  useradd -u 1000 -g 1000 vmail -d /var/mail/vmail -m && \
   passwd -l vmail && \
   rm -rf /etc/dovecot && \
   mkdir -p /var/mail && \
@@ -44,9 +44,9 @@ COPY dovecot-sql.conf.ext /etc/dovecot/dovecot-sql.conf.ext
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-RUN mkdir -p /var/mailbox/vhosts && \
-    chown -R vmail:vmail /var/mailbox && \
-    chmod -R 700 /var/mailbox
+RUN mkdir -p /var/mail/vhosts && \
+    chown -R vmail:vmail /var/mail && \
+    chmod -R 700 /var/mail
 
 EXPOSE 24
 EXPOSE 110
