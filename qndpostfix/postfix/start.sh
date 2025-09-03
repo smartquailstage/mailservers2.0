@@ -151,7 +151,7 @@ function setPermissions {
   chmod 700 /var/mail/
 }
 
-function serviceStart {
+serviceStart() {
   addUserInfo
   createVirtualTables
   insertInitialData
@@ -164,7 +164,9 @@ function serviceStart {
   fi
 
   log "[ Iniciando Postfix... ]"
-  /usr/sbin/postfix start-fg
 }
 
-serviceStart &>> /proc/1/fd/1
+serviceStart >> /proc/1/fd/1 2>&1
+
+# Finalmente ejecutar postfix en foreground
+exec /usr/sbin/postfix start-fg
