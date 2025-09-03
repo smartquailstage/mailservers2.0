@@ -331,8 +331,8 @@ function serviceStart {
   serviceConf
   setPermissions
   /usr/sbin/postfix start-fg
-  opendkim 
-  opendkim -F -x /etc/opendkim/opendkim.conf -P /var/run/opendkim/opendkim.pid
+ # opendkim 
+ # opendkim -F -x /etc/opendkim/opendkim.conf -P /var/run/opendkim/opendkim.pid
   log "[ Iniciando Postfix... ]"
 }
 
