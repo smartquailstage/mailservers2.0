@@ -38,6 +38,9 @@ RUN addgroup -g 1001 postfix || true \
     && addgroup -g 1003 opendkim || true \
     && adduser -D -u 1003 -G opendkim -s /sbin/nologin opendkim || true
 
+RUN mkdir -p /etc/postfix/sql && chown -R postfix:postfix /etc/postfix/sql
+
+
 
     # Set ownership and permissions for /var/spool/postfix
     && chown -R postfix:postfix /var/spool/postfix \
