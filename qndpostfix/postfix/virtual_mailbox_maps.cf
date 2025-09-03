@@ -1,0 +1,8 @@
+user     = sqadmindb  
+password = Support1719@
+dbname = QND041MAILDB
+hosts = smartquaildb
+
+query = SELECT CONCAT('/var/mailbox/vhosts/', domain, '/', SPLIT_PART(email, '@', 1), '/Maildir/')
+        FROM virtual_users, virtual_domains
+        WHERE virtual_users.domain_id = virtual_domains.id AND email='%s'

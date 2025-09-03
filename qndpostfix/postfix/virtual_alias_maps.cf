@@ -1,0 +1,7 @@
+user     = sqadmindb  
+password = Support1719@
+dbname = QND041MAILDB
+hosts = smartquaildb
+
+# Query para obtener el destino de un alias
+query = SELECT destination FROM virtual_aliases WHERE source='%s'

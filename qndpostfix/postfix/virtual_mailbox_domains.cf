@@ -1,0 +1,7 @@
+user     = sqadmindb  
+password = Support1719@
+dbname = QND041MAILDB
+hosts = smartquaildb
+
+# Query para obtener el dominio de un buzón de correo
+query = SELECT domain FROM virtual_domains WHERE domain='%s'

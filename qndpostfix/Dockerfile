@@ -38,7 +38,7 @@ RUN addgroup -g 1001 postfix || true \
     && addgroup -g 1003 opendkim || true \
     && adduser -D -u 1003 -G opendkim -s /sbin/nologin opendkim || true
 
-    
+
     # Set ownership and permissions for /var/spool/postfix
     && chown -R postfix:postfix /var/spool/postfix \
     && chmod 750 /var/spool/postfix/private \
@@ -60,6 +60,10 @@ COPY postfix/main.cf /etc/postfix/main.cf
 COPY postfix/master.cf /etc/postfix/master.cf
 COPY postfix/sasl_passwd /etc/postfix/
 COPY postfix /etc/postfix
+
+COPY postfix/virtual_mailbox_domains.cf /etc/postfix/sql/virtual_mailbox_domains.cf
+COPY postfix/virtual_mailbox_maps.cf /etc/postfix/sql/virtual_mailbox_maps.cf
+COPY postfix/virtual_alias_maps.cf /etc/postfix/sql/virtual_alias_maps.cf
 #Copy Opendkim
 COPY opendkim/opendkim.conf /etc/opendkim/opendkim.conf 
 COPY opendkim/KeyTable /etc/opendkim/KeyTable  
