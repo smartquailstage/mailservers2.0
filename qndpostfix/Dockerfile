@@ -38,22 +38,16 @@ RUN addgroup -g 1001 postfix || true \
     && addgroup -g 1003 opendkim || true \
     && adduser -D -u 1003 -G opendkim -s /sbin/nologin opendkim || true
 
-RUN mkdir -p /etc/postfix/sql && chown -R postfix:postfix /etc/postfix/sql
-
-
-
-    # Set ownership and permissions for /var/spool/postfix
+RUN mkdir -p /etc/postfix/sql \
+    && chown -R postfix:postfix /etc/postfix/sql \
     && chown -R postfix:postfix /var/spool/postfix \
     && chmod 750 /var/spool/postfix/private \
     && chmod 750 /var/spool/postfix \
-    # Set ownership and permissions for /var/mail
     && mkdir -p /var/mail \
     && chown -R vmail:vmail /var/mail \
     && chmod 700 /var/mail \
-    # Set permissions for SSL certificates
     && chmod 700 /etc/ssl/private \
     && chown root:root /etc/ssl/certs /etc/ssl/private \
-    # Set permissions for OpenDKIM
     && chown -R opendkim:opendkim /etc/opendkim
 
 # Copy configuration files
