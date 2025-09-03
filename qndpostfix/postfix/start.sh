@@ -146,27 +146,25 @@ function setPermissions {
   chown -R root:root /etc/postfix
   chmod 640 /etc/postfix/*.cf
 
-  chown -R postfix:postfix /var/mail/
+  # Cambiar esta línea para mantener vmail:vmail en /var/mail
+  chown -R vmail:vmail /var/mail/
   chmod 700 /var/mail/
 }
 
 function serviceStart {
-  log "[ Iniciando Postfix... ]"
   addUserInfo
   createVirtualTables
   insertInitialData
   serviceConf
   setPermissions
 
-  postfix check || {
+  if ! postfix check; then
     log "Postfix configuration check failed!"
     exit 1
-  }
+  fi
 
+  log "[ Iniciando Postfix... ]"
   /usr/sbin/postfix start-fg
-  ret=$?
-  log "Postfix exited with code $ret"
-  exit $ret
 }
 
 serviceStart &>> /proc/1/fd/1
