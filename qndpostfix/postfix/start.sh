@@ -150,7 +150,7 @@ function setPermissions {
     # Set ownership and permissions for Postfix-OpendDkim sockets directories 
   chown -R postfix:postfix /var/spool/postfix
   chmod 750 /var/spool/postfix/private
-  chmod 750 /var/spool/posfix
+  chmod 750 /var/spool/postfix
 
   # Set ownership and permissions for Postfix configuration files
   chown -R root:root /etc/postfix
