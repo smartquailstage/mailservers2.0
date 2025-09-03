@@ -2,7 +2,7 @@
 
 USER="vmail"
 GROUP="vmail"
-MAIL_DIR="/var/mailbox"
+MAIL_DIR="/var/mail"
 MAILDIR_STRUCTURE="$MAIL_DIR/vhosts/smartquail.io/support/Maildir"
 
 mkdir -p "$MAIL_DIR"
