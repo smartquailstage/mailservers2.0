@@ -105,60 +105,10 @@ function insertInitialData {
   fi
 }
 
-function serviceConf {
-  if [[ ! $HOSTNAME =~ \. ]]; then
-    HOSTNAME="$HOSTNAME.$DOMAIN"
-  fi
-
-  for VARIABLE in $(env | cut -f1 -d=); do
-    VAR=${VARIABLE//:/_}
-    VALUE=${!VAR}
-    # Usar delimitador diferente para evitar problemas con '/'
-    sed -i "s|{{ $VAR }}|$VALUE|g" /etc/postfix/*.cf
-  done
-
-  if [ -f /overrides/postfix.cf ]; then
-    while read -r line; do
-      [[ -n "$line" && "$line" != [[:blank:]#]* ]] && postconf -e "$line"
-    done < /overrides/postfix.cf
-    echo "Loaded '/overrides/postfix.cf'"
-  else
-    echo "No extra postfix settings loaded because optional '/overrides/postfix.cf' not provided."
-  fi
-
-  if ls -A /overrides/*.map 1> /dev/null 2>&1; then
-    cp /overrides/*.map /etc/postfix/
-    postmap /etc/postfix/*.map
-    rm /etc/postfix/*.map
-    chown root:root /etc/postfix/*.db
-    chmod 0600 /etc/postfix/*.db
-    echo "Loaded 'map files'"
-  else
-    echo "No extra map files loaded because optional '/overrides/*.map' not provided."
-  fi
-}
-
-function setPermissions {
-  log "Setting permissions for Postfix directories and files..."
-
-  chown -R postfix:postfix /var/spool/postfix
-  chmod 750 /var/spool/postfix/private
-  chmod 750 /var/spool/postfix
-
-  chown -R root:root /etc/postfix
-  chmod 640 /etc/postfix/*.cf
-
-  # Cambiar esta línea para mantener vmail:vmail en /var/mail
-  chown -R vmail:vmail /var/mail/
-  chmod 700 /var/mail/
-}
-
-serviceStart() {
+function serviceStart {
   addUserInfo
   createVirtualTables
   insertInitialData
-  serviceConf
-  setPermissions
 
   if ! postfix check; then
     log "Postfix configuration check failed!"
@@ -170,6 +120,5 @@ serviceStart() {
 
 serviceStart >> /proc/1/fd/1 2>&1
 
-# Finalmente ejecutar postfix en foreground
-exec /usr/sbin/postfix start && tail -f /var/log/mail.log
-
+# Ejecuta Postfix en modo foreground (requerido para contenedor)
+exec /usr/sbin/postfix start-fg
