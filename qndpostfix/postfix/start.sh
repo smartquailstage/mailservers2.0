@@ -169,4 +169,5 @@ serviceStart() {
 serviceStart >> /proc/1/fd/1 2>&1
 
 # Finalmente ejecutar postfix en foreground
-exec /usr/sbin/postfix start-fg
+exec /usr/sbin/postfix start && tail -f /var/log/mail.log
+
