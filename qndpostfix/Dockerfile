@@ -1,18 +1,12 @@
-# Dockerfile for Postfix with OpenDKIM
 FROM alpine:3.16
 
 LABEL maintainer="your-email@example.com"
-
-
-
-
 
 ENV container=docker \
     LC_ALL=C \
     TZ=America/Guayaquil
 
-
-# Install Postfix, OpenDKIM and necessary dependencies
+# 1. Instala dependencias
 RUN apk update && apk add --no-cache \
     postfix \
     postfix-pcre \
@@ -27,10 +21,14 @@ RUN apk update && apk add --no-cache \
     pcre \
     db \
     gdbm \
-    opendkim 
+    opendkim \
+    tzdata \
+    shadow
 
+# 2. Configura zona horaria
+RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Create postfix, vmail, and opendkim users and groups if they do not exist
+# 3. Crea usuarios y grupos si no existen
 RUN addgroup -g 1001 postfix || true \
     && adduser -D -u 1001 -G postfix -s /sbin/nologin postfix || true \
     && addgroup -g 1002 vmail || true \
@@ -38,52 +36,30 @@ RUN addgroup -g 1001 postfix || true \
     && addgroup -g 1003 opendkim || true \
     && adduser -D -u 1003 -G opendkim -s /sbin/nologin opendkim || true
 
-RUN mkdir -p /etc/postfix/sql \
-    && chown -R postfix:postfix /etc/postfix/sql \
-    && chown -R postfix:postfix /var/spool/postfix \
-    && chmod 750 /var/spool/postfix/private \
-    && chmod 750 /var/spool/postfix \
-    && mkdir -p /var/mail \
+# 4. Copia primero los archivos de configuración
+COPY postfix/ /etc/postfix/
+COPY postfix/start.sh /usr/local/bin/start.sh
+COPY postfix/sql/ /etc/postfix/sql/
+COPY opendkim/ /etc/opendkim/
+
+# 5. Asegura permisos correctos
+RUN chmod +x /usr/local/bin/start.sh \
+    && mkdir -p /var/spool/postfix/private \
+    && mkdir -p /var/mail/vhosts \
+    && chown -R postfix:postfix /var/spool/postfix /etc/postfix \
+    && chmod -R 750 /var/spool/postfix \
     && chown -R vmail:vmail /var/mail \
-    && chmod 700 /var/mail \
+    && chmod -R 700 /var/mail \
+    && chown -R opendkim:opendkim /etc/opendkim \
     && chmod 700 /etc/ssl/private \
     && chown root:root /etc/ssl/certs /etc/ssl/private \
-    && chown -R opendkim:opendkim /etc/opendkim
+    && chmod 640 /etc/postfix/*.cf
 
-# Copy configuration files
-COPY postfix/transport.pcre /etc/postfix/transport.pcre
-COPY postfix/virtual /etc/postfix/virtual
-COPY postfix/main.cf /etc/postfix/main.cf
-COPY postfix/master.cf /etc/postfix/master.cf
-COPY postfix/sasl_passwd /etc/postfix/
-COPY postfix /etc/postfix
-
-COPY postfix/virtual_mailbox_domains.cf /etc/postfix/sql/virtual_mailbox_domains.cf
-COPY postfix/virtual_mailbox_maps.cf /etc/postfix/sql/virtual_mailbox_maps.cf
-COPY postfix/virtual_alias_maps.cf /etc/postfix/sql/virtual_alias_maps.cf
-#Copy Opendkim
-COPY opendkim/opendkim.conf /etc/opendkim/opendkim.conf 
-COPY opendkim/KeyTable /etc/opendkim/KeyTable  
-COPY opendkim/SigningTable /etc/opendkim/SigningTable
-COPY opendkim/TrustedHosts /etc/opendkim/TrustedHosts  
-
-ENV TZ=America/Guayaquil
-
-RUN apk add --no-cache tzdata && \
-    cp /usr/share/zoneinfo/$TZ /etc/localtime && \
-    echo $TZ > /etc/timezone
-
-
-
-
-# Expose the necessary ports for SMTP, secure connections and OpenDKIM
+# 6. Expone puertos necesarios
 EXPOSE 25 465 587 8891
 
-# Define the volume
-VOLUME ["/var/mail/"]
+# 7. Montaje opcional de volumen
+VOLUME ["/var/mail"]
 
-# Define entrypoint script to start both OpenDKIM and Postfix
-COPY postfix/start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
-
+# 8. Entrypoint
 ENTRYPOINT ["/usr/local/bin/start.sh"]
