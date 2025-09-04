@@ -4,6 +4,16 @@ set -x
 
 ME=$(basename "$0")
 
+# Corregir permisos para evitar que postfix ignore los mapas pgsql
+chown root:root /etc/postfix/dynamicmaps.cf
+chmod 0644 /etc/postfix/dynamicmaps.cf
+
+chown -R root:root /etc/postfix/dynamicmaps.cf.d/
+chmod -R go-w /etc/postfix/dynamicmaps.cf.d/
+
+chown root:root /etc/postfix/sql/virtual_alias_maps.cf
+chmod 0600 /etc/postfix/sql/virtual_alias_maps.cf
+
 export PGPASSWORD="$POSTFIX_PASSWORD_DB"
 export PGUSER="$POSTFIX_USER_DB"
 export POSTFIX_POSTGRES_DB="$POSTFIX_DB"

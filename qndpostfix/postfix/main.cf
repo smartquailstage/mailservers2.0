@@ -47,7 +47,7 @@ virtual_transport = lmtp:inet:dovecot-lmtp.mail-srv.svc.cluster.local:24
 transport_maps = pcre:/etc/postfix/transport.pcre
 
 # Relayhost if any is configured
-relayhost = [mail.smartquail.io]:31193
+relayhost = [mail.smartquail.io]:30587
 
 relay_domains = 
 
@@ -101,8 +101,8 @@ smtpd_relay_before_recipient_restrictions = no
 smtp_tls_security_level = may
 smtpd_tls_security_level = may
 smtpd_tls_auth_only = no
-smtpd_tls_cert_file = {{ TLS_CERT_FILE }}
-smtpd_tls_key_file =  {{ TLS_KEY_FILE }}
+smtpd_tls_cert_file = /etc/ssl/tls.crt
+smtpd_tls_key_file =  /etc/ssl/tls.key
 smtpd_tls_received_header = yes
 smtp_tls_note_starttls_offer = yes
 smtpd_tls_loglevel = 1
