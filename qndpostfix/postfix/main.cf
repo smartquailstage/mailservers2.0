@@ -34,7 +34,8 @@ mynetworks = 127.0.0.0/8, [::1]/128, 192.168.1.0/24, 24.199.118.145,10.244.0.0/1
 mydestination = $myhostname, localhost.$mydomain, localhost
 
 inet_interfaces = all
-inet_protocols = all
+inet_protocols = ipv4
+
 
 virtual_transport = lmtp:inet:dovecot-lmtp.mail-srv.svc.cluster.local:24
 
