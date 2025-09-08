@@ -120,15 +120,30 @@ function serviceStart {
   createVirtualTables
   insertInitialData
 
+  log "[ Iniciando OpenDKIM... ]"
+
+  # Inicia OpenDKIM
+  /usr/sbin/opendkim -x /etc/opendkim/opendkim.conf
+
+  if [ $? -ne 0 ]; then
+    log "❌ Error al iniciar OpenDKIM"
+    exit 1
+  else
+    log "✅ OpenDKIM iniciado correctamente"
+  fi
+
+  # Verifica configuración de Postfix
   if ! postfix check; then
-    log "Postfix configuration check failed!"
+    log "❌ Postfix configuration check failed!"
     exit 1
   fi
 
   log "[ Iniciando Postfix... ]"
+
+  # Ejecuta Postfix en modo foreground (requerido para contenedor)
+  exec /usr/sbin/postfix start-fg
 }
 
+# Ejecuta y redirige logs al stdout del contenedor
 serviceStart >> /proc/1/fd/1 2>&1
 
-# Ejecuta Postfix en modo foreground (requerido para contenedor)
-exec /usr/sbin/postfix start-fg
