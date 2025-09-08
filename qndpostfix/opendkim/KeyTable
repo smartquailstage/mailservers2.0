@@ -1,1 +1,1 @@
-default._domainkey.smartquail.io smartquail.io:default:/etc/opendkim/keys/default.private
+default._domainkey.smartquail.io smartquail.io:default:/etc/opendkim/keys/mail.private
