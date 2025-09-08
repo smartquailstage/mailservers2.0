@@ -172,8 +172,14 @@ function serviceStart {
   insertInitialData
   serviceConf
   setPermissions
-  log "[ Iniciando Postfix... ]"
-  /usr/sbin/postfix start-fg
+
+  log "[Starting OpenDKIM...]"
+  /usr/sbin/opendkim -f -x /etc/opendkim/opendkim.conf &
+
+  sleep 2  # Esperar un momento para que el socket esté listo
+
+  log "[Starting Postfix...]"
+  exec /usr/sbin/postfix start-fg
 }
 
 export DOMAIN=${DOMAIN:-"mail.smartquail.io"}
