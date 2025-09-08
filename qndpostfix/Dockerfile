@@ -22,6 +22,7 @@ RUN apk update && apk add --no-cache \
     db \
     gdbm \
     opendkim \
+    opendkim-tools \
     tzdata \
     shadow
 
