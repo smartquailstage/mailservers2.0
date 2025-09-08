@@ -6,9 +6,7 @@ ENV container=docker \
     LC_ALL=C \
     TZ=America/Guayaquil
 
-RUN echo "@edge http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
- && apk update \
- && apk add --no-cache opendkim openssl opendkim-utils@edge
+
 
 # 1. Instala dependencias
 RUN apk update && apk add --no-cache \
