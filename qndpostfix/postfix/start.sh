@@ -123,7 +123,7 @@ function serviceStart {
   log "[ Verificando o generando clave DKIM... ]"
 
   DKIM_DOMAIN="smartquail.io"
-  DKIM_SELECTOR="default"
+  DKIM_SELECTOR="mail"
   DKIM_KEY_DIR="/etc/opendkim/keys/${DKIM_DOMAIN}"
   DKIM_PRIVATE_KEY="${DKIM_KEY_DIR}/${DKIM_SELECTOR}.private"
 
