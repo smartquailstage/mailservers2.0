@@ -158,6 +158,13 @@ function serviceStart {
   chown opendkim:postfix "$SOCKET_DIR"
   chmod 750 "$SOCKET_DIR"
 
+  # Crear directorio para el archivo PID
+  PID_DIR="/var/run/opendkim"
+  mkdir -p "$PID_DIR"
+  chown opendkim:opendkim "$PID_DIR"
+  chmod 750 "$PID_DIR"
+  log "✅ Directorio PID creado en $PID_DIR"
+
   /usr/sbin/opendkim -x /etc/opendkim/opendkim.conf
 
   if [ $? -ne 0 ]; then

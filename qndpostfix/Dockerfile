@@ -44,6 +44,16 @@ RUN mkdir -p /var/spool/postfix/opendkim \
     && chown opendkim:postfix /var/spool/postfix/opendkim \
     && chmod 770 /var/spool/postfix/opendkim
 
+# Crear directorio para socket de OpenDKIM y asignar permisos
+RUN mkdir -p /var/spool/postfix/opendkim \
+    && chown opendkim:postfix /var/spool/postfix/opendkim \
+    && chmod 770 /var/spool/postfix/opendkim \
+    # Crear directorio para PID de OpenDKIM
+    && mkdir -p /var/run/opendkim \
+    && chown opendkim:opendkim /var/run/opendkim \
+    && chmod 750 /var/run/opendkim
+
+
 
 # 4. Copia primero los archivos de configuración
 COPY postfix/ /etc/postfix/
