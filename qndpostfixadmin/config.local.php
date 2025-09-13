@@ -5,7 +5,7 @@ $CONF['database_host'] = 'smartquaildb';  // Dirección del servidor de base de 
 $CONF['database_port'] =5432;  // Puerto del servidor de base de datos
 $CONF['database_user'] = 'sqadmindb';  // Usuario de la base de datos
 $CONF['database_password'] = 'Support1719@';  // Contraseña de la base de datos
-$CONF['database_name'] = 'QND41DB';  // Nombre de la base de datos (por defecto para SQLite)
+$CONF['database_name'] = 'QND41MAILDB';  // Nombre de la base de datos (por defecto para SQLite)
 
 // Servidor SMTP
 $CONF['smtp_server'] = getenv('POSTFIXADMIN_SMTP_SERVER') ?: 'localhost';  // Dirección del servidor SMTP
