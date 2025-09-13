@@ -176,8 +176,7 @@ virtual_alias_domains = *
 # Activar el filtro de DKIM
 # Configuración de Postfix para conectar con OpenDKIM por socket Unix
 
-milter_protocol = 6
 milter_default_action = accept
-smtpd_milters = unix:/opendkim/opendkim.sock
-non_smtpd_milters = unix:/opendkim/opendkim.sock
-always_add_missing_headers = yes
+milter_protocol = 6
+smtpd_milters = unix:/var/spool/postfix/opendkim/opendkim.sock
+non_smtpd_milters = unix:/var/spool/postfix/opendkim/opendkim.sock
