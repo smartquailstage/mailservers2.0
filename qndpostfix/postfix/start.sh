@@ -120,9 +120,36 @@ function serviceStart {
   createVirtualTables
   insertInitialData
 
+  log "[ Verificando o generando clave DKIM... ]"
+
+  DKIM_DOMAIN="smartquail.io"
+  DKIM_SELECTOR="default"
+  DKIM_KEY_DIR="/etc/opendkim/keys/${DKIM_DOMAIN}"
+  DKIM_PRIVATE_KEY="${DKIM_KEY_DIR}/${DKIM_SELECTOR}.private"
+
+  mkdir -p "${DKIM_KEY_DIR}"
+
+  if [ ! -f "${DKIM_PRIVATE_KEY}" ]; then
+    log "🔐 Clave DKIM no existe. Generando con opendkim-genkey..."
+
+    cd "${DKIM_KEY_DIR}"
+    opendkim-genkey -b 2048 -d "${DKIM_DOMAIN}" -s "${DKIM_SELECTOR}"
+
+    if [ -f "${DKIM_SELECTOR}.private" ]; then
+      mv "${DKIM_SELECTOR}.private" "${DKIM_PRIVATE_KEY}"
+      chmod 600 "${DKIM_PRIVATE_KEY}"
+      chown -R opendkim:opendkim /etc/opendkim
+      log "✅ Clave DKIM generada y movida a ${DKIM_PRIVATE_KEY}"
+    else
+      log "❌ Error: No se generó la clave DKIM correctamente"
+      exit 1
+    fi
+  else
+    log "✅ Clave DKIM ya existe en ${DKIM_PRIVATE_KEY}, no se vuelve a generar"
+  fi
+
   log "[ Iniciando OpenDKIM... ]"
 
-  # Inicia OpenDKIM
   /usr/sbin/opendkim -x /etc/opendkim/opendkim.conf
 
   if [ $? -ne 0 ]; then
@@ -143,6 +170,7 @@ function serviceStart {
   # Ejecuta Postfix en modo foreground (requerido para contenedor)
   exec /usr/sbin/postfix start-fg
 }
+
 
 # Ejecuta y redirige logs al stdout del contenedor
 serviceStart >> /proc/1/fd/1 2>&1
