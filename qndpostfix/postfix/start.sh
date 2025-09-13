@@ -150,25 +150,14 @@ function serviceStart {
 
   log "[ Iniciando OpenDKIM... ]"
 
-  /usr/sbin/opendkim -x /etc/opendkim/opendkim.conf
-
-  if [ $? -ne 0 ]; then
-    log "❌ Error al iniciar OpenDKIM"
-    exit 1
-  else
-    log "✅ OpenDKIM iniciado correctamente"
-  fi
-
-  # Paso extra: preparar directorio del socket
+  # Directorio y socket
   SOCKET_DIR="/var/spool/postfix/opendkim"
-  SOCKET_PATH="$SOCKET_DIR/opendkim.sock"
+  SOCKET_PATH="${SOCKET_DIR}/opendkim.sock"
 
   mkdir -p "$SOCKET_DIR"
   chown opendkim:postfix "$SOCKET_DIR"
   chmod 750 "$SOCKET_DIR"
 
-  log "[ Iniciando OpenDKIM... ]"
-
   /usr/sbin/opendkim -x /etc/opendkim/opendkim.conf
 
   if [ $? -ne 0 ]; then
@@ -178,13 +167,24 @@ function serviceStart {
     log "✅ OpenDKIM iniciado correctamente"
   fi
 
-  # Corregir permisos del socket (solo si fue creado correctamente)
+  # Espera activa hasta que se cree el socket (timeout de 10 segundos)
+  TIMEOUT=10
+  COUNT=0
+
+  log "⌛ Esperando que se cree el socket DKIM..."
+
+  while [ ! -S "$SOCKET_PATH" ] && [ $COUNT -lt $TIMEOUT ]; do
+    sleep 1
+    COUNT=$((COUNT + 1))
+  done
+
   if [ -S "$SOCKET_PATH" ]; then
     chown opendkim:postfix "$SOCKET_PATH"
     chmod 770 "$SOCKET_PATH"
-    log "✅ Permisos del socket OpenDKIM corregidos ($SOCKET_PATH)"
+    log "✅ Socket DKIM creado en $SOCKET_PATH y permisos corregidos"
   else
-    log "⚠️ Socket OpenDKIM no encontrado en $SOCKET_PATH. Asegúrate que la configuración sea correcta."
+    log "❌ Timeout: el socket DKIM no se creó después de ${TIMEOUT}s"
+    exit 1
   fi
 
   # Verifica configuración de Postfix
