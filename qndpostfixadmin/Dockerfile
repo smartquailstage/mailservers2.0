@@ -70,6 +70,8 @@ RUN set -eu; \
 	chown -R www-data:www-data /usr/src/postfixadmin
 
 COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 EXPOSE 8000
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
