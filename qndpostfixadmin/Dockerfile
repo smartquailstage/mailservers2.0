@@ -70,6 +70,7 @@ RUN set -eu; \
 	chown -R www-data:www-data /usr/src/postfixadmin
 
 COPY docker-entrypoint.sh /usr/local/bin/
+EXPOSE 8000
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["apache2-foreground"]
