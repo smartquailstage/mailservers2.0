@@ -39,6 +39,12 @@ RUN addgroup -g 1001 postfix || true \
     && addgroup -g 1003 opendkim || true \
     && adduser -D -u 1003 -G opendkim -s /sbin/nologin opendkim || true
 
+# Crear directorio para socket de OpenDKIM y asignar permisos
+RUN mkdir -p /var/spool/postfix/opendkim \
+    && chown opendkim:postfix /var/spool/postfix/opendkim \
+    && chmod 770 /var/spool/postfix/opendkim
+
+
 # 4. Copia primero los archivos de configuración
 COPY postfix/ /etc/postfix/
 COPY postfix/start.sh /usr/local/bin/start.sh

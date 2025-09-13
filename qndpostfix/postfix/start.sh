@@ -159,6 +159,16 @@ function serviceStart {
     log "✅ OpenDKIM iniciado correctamente"
   fi
 
+  # Paso extra: corregir permisos del socket para que postfix pueda usarlo
+  SOCKET_PATH="/var/spool/postfix/opendkim/opendkim.sock"
+  if [ -S "$SOCKET_PATH" ]; then
+    chown opendkim:postfix "$SOCKET_PATH"
+    chmod 770 "$SOCKET_PATH"
+    log "✅ Permisos del socket OpenDKIM corregidos ($SOCKET_PATH)"
+  else
+    log "⚠️ Socket OpenDKIM no encontrado en $SOCKET_PATH. Asegúrate que la configuración sea correcta."
+  fi
+
   # Verifica configuración de Postfix
   if ! postfix check; then
     log "❌ Postfix configuration check failed!"
