@@ -165,7 +165,7 @@ function serviceStart {
   chmod 750 "$PID_DIR"
   log "✅ Directorio PID creado en $PID_DIR"
 
-  /usr/sbin/opendkim -x /etc/opendkim/opendkim.conf -f -v 
+  /usr/sbin/opendkim -x /etc/opendkim/opendkim.conf
 
   if [ $? -ne 0 ]; then
     log "❌ Error al iniciar OpenDKIM"
