@@ -120,80 +120,6 @@ function serviceStart {
   createVirtualTables
   insertInitialData
 
-  log "[ Verificando o generando clave DKIM... ]"
-
-  DKIM_DOMAIN="smartquail.io"
-  DKIM_SELECTOR="mail"
-  DKIM_KEY_DIR="/etc/opendkim/keys/${DKIM_DOMAIN}"
-  DKIM_PRIVATE_KEY="${DKIM_KEY_DIR}/${DKIM_SELECTOR}.private"
-
-  mkdir -p "${DKIM_KEY_DIR}"
-
-  if [ ! -f "${DKIM_PRIVATE_KEY}" ]; then
-    log "🔐 Clave DKIM no existe. Generando con opendkim-genkey..."
-
-    cd "${DKIM_KEY_DIR}"
-    opendkim-genkey -b 2048 -d "${DKIM_DOMAIN}" -s "${DKIM_SELECTOR}"
-
-    if [ -f "${DKIM_SELECTOR}.private" ]; then
-      mv "${DKIM_SELECTOR}.private" "${DKIM_PRIVATE_KEY}"
-      chmod 600 "${DKIM_PRIVATE_KEY}"
-      chown -R opendkim:opendkim /etc/opendkim
-      log "✅ Clave DKIM generada y movida a ${DKIM_PRIVATE_KEY}"
-    else
-      log "❌ Error: No se generó la clave DKIM correctamente"
-      exit 1
-    fi
-  else
-    log "✅ Clave DKIM ya existe en ${DKIM_PRIVATE_KEY}, no se vuelve a generar"
-  fi
-
-  log "[ Iniciando OpenDKIM... ]"
-
-  # Directorio y socket
-  SOCKET_DIR="/var/spool/postfix/opendkim"
-  SOCKET_PATH="${SOCKET_DIR}/opendkim.sock"
-
-  mkdir -p "$SOCKET_DIR"
-  chown opendkim:postfix "$SOCKET_DIR"
-  chmod 750 "$SOCKET_DIR"
-
-  # Crear directorio para el archivo PID
-  PID_DIR="/var/run/opendkim"
-  mkdir -p "$PID_DIR"
-  chown opendkim:opendkim "$PID_DIR"
-  chmod 750 "$PID_DIR"
-  log "✅ Directorio PID creado en $PID_DIR"
-
-  /usr/sbin/opendkim -x /etc/opendkim/opendkim.conf
-
-  if [ $? -ne 0 ]; then
-    log "❌ Error al iniciar OpenDKIM"
-    exit 1
-  else
-    log "✅ OpenDKIM iniciado correctamente"
-  fi
-
-  # Espera activa hasta que se cree el socket (timeout de 10 segundos)
-  TIMEOUT=10
-  COUNT=0
-
-  log "⌛ Esperando que se cree el socket DKIM..."
-
-  while [ ! -S "$SOCKET_PATH" ] && [ $COUNT -lt $TIMEOUT ]; do
-    sleep 1
-    COUNT=$((COUNT + 1))
-  done
-
-  if [ -S "$SOCKET_PATH" ]; then
-    chown opendkim:postfix "$SOCKET_PATH"
-    chmod 770 "$SOCKET_PATH"
-    log "✅ Socket DKIM creado en $SOCKET_PATH y permisos corregidos"
-  else
-    log "❌ Timeout: el socket DKIM no se creó después de ${TIMEOUT}s"
-    exit 1
-  fi
-
   # Verifica configuración de Postfix
   if ! postfix check; then
     log "❌ Postfix configuration check failed!"
@@ -206,7 +132,5 @@ function serviceStart {
   exec /usr/sbin/postfix start-fg
 }
 
-
 # Ejecuta y redirige logs al stdout del contenedor
 serviceStart >> /proc/1/fd/1 2>&1
-

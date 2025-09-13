@@ -178,5 +178,6 @@ virtual_alias_domains = *
 
 milter_default_action = accept
 milter_protocol = 6
-smtpd_milters = unix:/var/spool/postfix/opendkim/opendkim.sock
-non_smtpd_milters = unix:/var/spool/postfix/opendkim/opendkim.sock
+smtpd_milters = inet:opendkim-service:8891
+non_smtpd_milters = inet:opendkim-service:8891
+
