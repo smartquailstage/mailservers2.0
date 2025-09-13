@@ -8,8 +8,7 @@ smtp      inet  n       -       n       -       -       smtpd
   -o syslog_name=postfix/smtp
   -o smtpd_sasl_path=inet:dovecot-sasl:12345
 
-# Submission service for client mail submission (port 587)
-submission inet n       -       n       -       -       smtpd
+submission inet n - n - - smtpd
   -o syslog_name=postfix/submission
   -o smtpd_sasl_auth_enable=yes
   -o smtpd_tls_security_level=encrypt
@@ -19,13 +18,9 @@ submission inet n       -       n       -       -       smtpd
   -o smtpd_tls_mandatory_ciphers=high
   -o milter_default_action=accept
   -o milter_protocol=6
-  -o smtpd_milters=unix:/var/spool/postfix/opendkim/opendkim.sock
+  -o smtpd_milters=inet:opendkim-service:8891
 
-# SMTPS service for secure SMTP (port 465)
-smtps     inet  n       -       n       -       -       smtpd
-  -o milter_default_action=accept
-  -o milter_protocol=6
-  -o smtpd_milters=unix:/var/spool/postfix/opendkim/opendkim.sock
+smtps inet n - n - - smtpd
   -o syslog_name=postfix/smtps
   -o smtpd_tls_wrappermode=yes
   -o smtpd_sasl_auth_enable=yes
@@ -33,6 +28,9 @@ smtps     inet  n       -       n       -       -       smtpd
   -o smtpd_tls_security_level=encrypt
   -o smtpd_tls_mandatory_protocols=!SSLv2,!SSLv3,TLSv1.2,TLSv1.3
   -o smtpd_tls_mandatory_ciphers=high
+  -o milter_default_action=accept
+  -o milter_protocol=6
+  -o smtpd_milters=inet:opendkim-service:8891
 
 # Additional services
 outclean   unix n       -       n       -       0       cleanup
