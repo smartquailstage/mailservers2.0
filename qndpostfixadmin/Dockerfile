@@ -18,7 +18,6 @@ RUN set -eux; \
     ; \
     rm -rf /var/lib/apt/lists/*
 
-# Instala extensiones PHP necesarias y limpia correctamente
 RUN set -ex; \
     savedAptMark="$(apt-mark showmanual)"; \
     apt-get update; \
@@ -36,7 +35,6 @@ RUN set -ex; \
         pdo_sqlite \
         pgsql; \
     \
-    # Marcar como auto todo lo instalado en este paso
     apt-mark auto '.*' > /dev/null; \
     apt-mark manual $savedAptMark; \
     \
@@ -48,7 +46,11 @@ RUN set -ex; \
         xargs -r -n1 dpkg-query -S 2>/dev/null | \
         cut -d: -f1 | \
         sort -u | \
-        xargs -r -n1 apt-mark manual 2>/dev/null || true;
+        xargs -r -n1 apt-mark manual 2>/dev/null || true; \
+    \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+    rm -rf /var/lib/apt/lists/*
+
 
 
 # Variables para PostfixAdmin
