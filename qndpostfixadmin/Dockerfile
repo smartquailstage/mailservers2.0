@@ -40,19 +40,16 @@ RUN set -ex; \
     apt-mark auto '.*' > /dev/null; \
     apt-mark manual $savedAptMark; \
     \
-    # Detectar librerías usadas por extensiones y evitar purgar sus dependencias
-    for so in $(find "$(php -r 'echo ini_get(\"extension_dir\");')" -name '*.so'); do \
+    # Detectar librerías utilizadas por extensiones PHP y evitar purgar sus dependencias
+    find "$(php -r 'echo ini_get("extension_dir");')" -name '*.so' | while read -r so; do \
         ldd "$so" | awk '/=>/ { print $(NF-1) }'; \
     done | \
         grep -v '^/usr/local/' | \
-        sed 's|^/||' | \
-        xargs -r dpkg-query -S 2>/dev/null | \
-        cut -d: -f1 | sort -u | \
-        xargs -r apt-mark manual; \
-    \
-    # Limpiar dependencias no necesarias
-    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
-    rm -rf /var/lib/apt/lists/*
+        xargs -r -n1 dpkg-query -S 2>/dev/null | \
+        cut -d: -f1 | \
+        sort -u | \
+        xargs -r -n1 apt-mark manual 2>/dev/null || true;
+
 
 # Variables para PostfixAdmin
 ARG POSTFIXADMIN_VERSION=3.3.15
