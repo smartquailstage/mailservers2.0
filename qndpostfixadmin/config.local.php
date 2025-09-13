@@ -19,7 +19,7 @@ $CONF['dkim'] = getenv('POSTFIXADMIN_DKIM') ?: 'NO';  // Habilitar o deshabilita
 $CONF['dkim_all_admins'] = getenv('POSTFIXADMIN_DKIM_ALL_ADMINS') ?: 'NO';  // Habilitar DKIM para todos los administradores
 
 // Contraseña de configuración (setup)
-$CONF['setup_password'] = getenv('POSTFIXADMIN_SETUP_PASSWORD') ?: 'changeme';  // Contraseña para acceder a setup.php
+$CONF['setup_password'] = getenv('POSTFIXADMIN_SETUP_PASSWORD') ?: '$2y$10$lywDJK8fu26FSmxXNm2Ce.x/CnIdgCCQD/0mcApZSWZw.lXQZ8HhG';  // Contraseña para acceder a setup.php
 
 // Configuración básica de PostfixAdmin
 $CONF['configured'] = true;  // No está configurado aún (debe ser cambiado a 'true' después de completar la configuración)
