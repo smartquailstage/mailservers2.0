@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Definir las variables de conexión a PostgreSQL
-POSTGRES_USER="postgres_user"  # Reemplaza con tu usuario de PostgreSQL
-POSTGRES_DB="postgres_db"      # Reemplaza con tu nombre de base de datos
-POSTGRES_HOST="localhost"      # Si tu PostgreSQL está en el mismo contenedor, puedes usar localhost
+# Definir las variables de conexión a PostgreSQL usando las variables de entorno
+POSTGRES_USER="${POSTFIX_USER_DB}"  # Usando la variable POSTFIX_USER_DB
+POSTGRES_DB="${POSTFIX_DB}"         # Usando la variable POSTFIX_DB
+POSTGRES_HOST="${POSTFIX_DB_HOST}"  # Usando la variable POSTFIX_DB_HOST
 
 # Función para loguear mensajes
 log() {
