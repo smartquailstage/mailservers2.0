@@ -15,7 +15,7 @@ chmod 750 "$KEYS_DIR"
 # Verificar si la clave privada ya existe. Si no, generarla.
 if [ ! -f "$KEYS_DIR/$KEY_NAME.private" ]; then
   echo "Generando claves DKIM para el dominio $DOMAIN..."
-  opendkim-genkey -b 2048 -d "$DOMAIN" -s "$KEY_NAME" -z "$KEY_NAME" -D "$KEYS_DIR"
+  opendkim-genkey -b 2048 -d "$DOMAIN" -s "$KEY_NAME" -D "$KEYS_DIR"
   chmod 600 "$KEYS_DIR/$KEY_NAME.private"
   chmod 644 "$KEYS_DIR/$KEY_NAME.txt"
   echo "Claves DKIM generadas en $KEYS_DIR"
