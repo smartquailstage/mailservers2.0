@@ -19,16 +19,20 @@ insertData() {
 
   log "Inserting data for $domain and $email..."
 
+  # Aquí se implementan las restricciones para evitar duplicados
   local insert_sql="
+    -- Insertar dominio, asegurándose de que sea único
     INSERT INTO virtual_domains (domain) 
     VALUES ('$domain') 
     ON CONFLICT (domain) DO NOTHING;
 
+    -- Insertar usuario, asegurándose de que el email sea único
     INSERT INTO virtual_users (domain_id, email, password) 
     VALUES 
     ((SELECT id FROM virtual_domains WHERE domain = '$domain'), '$email', '$password') 
     ON CONFLICT (email) DO NOTHING;
 
+    -- Insertar alias, asegurándose de que el alias sea único
     INSERT INTO virtual_aliases (domain_id, source, destination) 
     VALUES 
     ((SELECT id FROM virtual_domains WHERE domain = '$domain'), '$alias', '$email') 
@@ -59,6 +63,3 @@ ALIAS=$4
 
 # Llamar a la función insertData para agregar la información
 insertData "$DOMAIN" "$EMAIL" "$PASSWORD" "$ALIAS"
-
-
-#./add_mail_user.sh smartquail.io mausilva@smartquail.io ms95355672 mausilva@mail.smartquail.io
