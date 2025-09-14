@@ -104,6 +104,31 @@ jobs:
     - name: Push Image
       run: | 
         docker push smartquail/qndpostfixadmin200 --all-tags
+
+
+  Docker_opendkim_container_build:
+    runs-on: ubuntu-latest
+    env:
+      DOMAIN: smartquail.io
+      HOSTNAME: mail.smartquail.io
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3 
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    - name: Build container image
+      working-directory: ./qndopendkim
+      run: | 
+        docker build -f Dockerfile \
+            -t smartquail/qndopendkim100:latest \
+            -t smartquail/qndopendkim100:${GITHUB_SHA::2}-${GITHUB_RUN_ID::2} \
+            .
+    - name: Push Image
+      run: | 
+        docker push smartquail/qndopendkim100 --all-tags
    
    
 
