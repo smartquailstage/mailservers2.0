@@ -63,3 +63,6 @@ ALIAS=$4
 
 # Llamar a la función insertData para agregar la información
 insertData "$DOMAIN" "$EMAIL" "$PASSWORD" "$ALIAS"
+
+
+#./add_mail_user.sh smartquail.io mausilva@smartquail.io ms95355672 mausilva@mail.smartquail.io
