@@ -36,17 +36,6 @@ ls -ld "$MAILDIR_STRUCTURE/cur"
 ls -ld "$MAILDIR_STRUCTURE/new"
 ls -ld "$MAILDIR_STRUCTURE/tmp"
 
-# =====================================================================
-# INICIO DEL DEMONIO DE NOTIFICACIONES PUSH (XAPSD)
-# =====================================================================
-if [ -f /etc/xapsd/xapsd.json ]; then
-    echo "Starting Apple Push Notification Daemon (xapsd)..."
-    # Se ejecuta como el usuario xapsd creado en el Dockerfile y en segundo plano (&)
-    su -s /bin/sh -c "/usr/bin/xapsd -config /etc/xapsd/xapsd.json" xapsd &
-else
-    echo "WARNING: /etc/xapsd/xapsd.json not found. xapsd will not start."
-fi
-# =====================================================================
 
 # Ejecutar Dovecot como proceso principal (PID 1)
 exec dovecot -F
