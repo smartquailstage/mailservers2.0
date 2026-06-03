@@ -144,15 +144,15 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
     - name: Build container image
-      working-directory: ./qnddovecot-xaps-plugin
+      working-directory: ./qnddovecot-xapsd-plugin
       run: | 
         docker build -f Dockerfile \
-            -t smartquail/qnddovecot-xaps-plugin:latest \
-            -t smartquail/qnddovecot-xaps-plugin:${GITHUB_SHA::2}-${GITHUB_RUN_ID::2} \
+            -t smartquail/qnddovecot-xapsd-plugin:latest \
+            -t smartquail/qnddovecot-xapsd-plugin:${GITHUB_SHA::2}-${GITHUB_RUN_ID::2} \
             .
     - name: Push Image
       run: | 
-        docker push smartquail/qnddovecot-xaps-plugin --all-tags
+        docker push smartquail/qnddovecot-xapsd-plugin --all-tags
 
        
 
