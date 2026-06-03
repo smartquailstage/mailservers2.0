@@ -1,3 +1,39 @@
+# ==========================================
+# ETAPA 1: Compilar el Plugin para tu Debian 11
+# ==========================================
+FROM debian:11-slim AS dovecot-plugin-xaps
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Añadir los mismos repositorios de Dovecot que usa tu contenedor final
+ADD dovecot.gpg /etc/apt/keyrings/dovecot.gpg
+ADD dovecot.list /etc/apt/sources.list.d
+
+WORKDIR /tmp/dovecot-xaps-plugin
+RUN apt-get update && apt-get -y --no-install-recommends install \
+    git \
+    cmake \
+    make \
+    build-essential \
+    dovecot-dev && \
+    git clone --single-branch --depth=1 https://github.com/freswa/dovecot-xaps-plugin.git . && \
+    mkdir build && cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release && \
+    make install
+
+# ==========================================
+# ETAPA 2: Compilar el Demonio en Go (No cambia)
+# ==========================================
+FROM golang:1.19-alpine AS dovecot-xaps-daemon
+ENV GOPROXY=https://proxy.golang.org,direct
+ENV CGO_ENABLED=0
+WORKDIR /go/dovecot-xaps-daemon
+RUN apk add --no-cache git && \
+    git clone --single-branch --depth=1 https://github.com/freswa/dovecot-xaps-daemon . && \
+    go build ./cmd/xapsd
+
+# ==========================================
+# ETAPA 3: Tu contenedor original Dovecot
+# ==========================================
 FROM debian:11-slim
 
 LABEL org.opencontainers.image.authors="dovecot@dovecot.org"
@@ -48,13 +84,21 @@ RUN mkdir -p /var/mail/vhosts && \
     chown -R vmail:vmail /var/mail && \
     chmod -R 700 /var/mail
 
-EXPOSE 24
-EXPOSE 110
-EXPOSE 143
-EXPOSE 587
-EXPOSE 990
-EXPOSE 993
-EXPOSE 4190
+# ------------------------------------------
+# INYECCIÓN DEL PLUGIN XAPS (Agregado aquí)
+# ------------------------------------------
+# Copiar las librerías compiladas en la Etapa 1
+COPY --from=dovecot-plugin-xaps /usr/lib/dovecot/modules/*_xaps_* /usr/lib/dovecot/modules/
+# Copiar el ejecutable del demonio generado en la Etapa 2
+COPY --from=dovecot-xaps-daemon /go/dovecot-xaps-daemon/xapsd /usr/bin/xapsd
+
+# Crear usuario xapsd y sus directorios requeridos
+RUN adduser --system --group --disabled-password --home /var/mail-state/lib-xapsd --no-create-home xapsd && \
+    mkdir -p /var/run/xapsd /etc/xapsd && \
+    chown -R xapsd:xapsd /var/run/xapsd /etc/xapsd
+
+# Puertos originales de tu contenedor
+EXPOSE 24 110 143 587 990 993 4190
 
 VOLUME ["/etc/dovecot", "/var/mail"]
 
