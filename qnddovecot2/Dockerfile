@@ -20,23 +20,10 @@ RUN apt-get update && apt-get -y --no-install-recommends install \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
     make install
 
-
-
 # ==========================================
-# ETAPA 2: Compilación Estática en Alpine (¡No falla!)
+# ETAPA 2: Extraer el binario oficial (¡Inmune a fallos de Go!)
 # ==========================================
-FROM golang:1.22-alpine AS dovecot-xaps-daemon
-WORKDIR /go/src/xapsd
-
-# Instalar git necesario para clonar
-RUN apk add --no-cache git
-
-# Clonar el proyecto
-RUN git clone --single-branch --depth=1 https://github.com/freswa/dovecot-xaps-daemon.git .
-
-# Forzar compilación ESTÁTICA y descargar dependencias automáticamente
-RUN CGO_ENABLED=0 go build -v -o /go/bin/xapsd ./cmd/xapsd
-
+FROM freswa/dovecot-xaps-daemon:latest AS dovecot-xaps-daemon
 
 # ==========================================
 # ETAPA 3: Tu contenedor original Dovecot
@@ -79,7 +66,7 @@ RUN apt-get -y update && apt-get -y install \
   chmod 755 /var/mail && \
   make-ssl-cert generate-default-snakeoil && \
   mkdir /etc/dovecot && \
-  ln -s /etc/ssl/certs/ssl-cert-snakeoil.pem /etc/dovecot/cert.pem && \
+  ln -s /etc/ssl/certs/ssl-cert-snakeoil.pem /etc/ssl/certs/ssl-cert-snakeoil.pem && \
   ln -s /etc/ssl/private/ssl-cert-snakeoil.key /etc/dovecot/key.pem
 
 ADD dovecot.conf /etc/dovecot/dovecot.conf
@@ -92,12 +79,13 @@ RUN mkdir -p /var/mail/vhosts && \
     chmod -R 700 /var/mail
 
 # ------------------------------------------
-# INYECCIÓN DEL PLUGIN XAPS (Agregado aquí)
+# INYECCIÓN DEL PLUGIN XAPS
 # ------------------------------------------
-# Copiar las librerías compiladas en la Etapa 1
+# Copiar las librerías del plugin compiladas en la Etapa 1
 COPY --from=dovecot-plugin-xaps /usr/lib/dovecot/modules/*_xaps_* /usr/lib/dovecot/modules/
-# Copiar el ejecutable del demonio generado en la Etapa 2
-COPY --from=dovecot-xaps-daemon /go/dovecot-xaps-daemon/xapsd /usr/bin/xapsd
+
+# Copiar el ejecutable del demonio precompilado oficial de la Etapa 2
+COPY --from=dovecot-xaps-daemon /usr/bin/xapsd /usr/bin/xapsd
 
 # Crear usuario xapsd y sus directorios requeridos
 RUN adduser --system --group --disabled-password --home /var/mail-state/lib-xapsd --no-create-home xapsd && \
