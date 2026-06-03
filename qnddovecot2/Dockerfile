@@ -20,18 +20,26 @@ RUN apt-get update && apt-get -y --no-install-recommends install \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
     make install
 
+
+
 # ==========================================
-# ETAPA 2 DEFINITIVA: Compilación automática con Go 1.22
+# ETAPA 2: Clonado y Compilación Manual con Módulos Forzados
 # ==========================================
 FROM golang:1.22-bullseye AS dovecot-xaps-daemon
-WORKDIR /go
+WORKDIR /go/src/xapsd
 
-# Instalar git (necesario para que Go descargue el proyecto remoto)
+# Instalar git
 RUN apt-get update && apt-get install -y git
 
-# go install descarga, resuelve módulos y compila el binario automáticamente
-# El binario compilado quedará guardado en /go/bin/xapsd
-RUN go install github.com/freswa/dovecot-xaps-daemon/cmd/xapsd@latest
+# Clonar el proyecto directamente en el directorio de trabajo
+RUN git clone --single-branch --depth=1 https://github.com/freswa/dovecot-xaps-daemon.git .
+
+# Inicializar y limpiar el entorno de módulos de Go manualmente
+RUN go mod init xapsd || true && \
+    go mod tidy
+
+# Compilar especificando la ruta al archivo main.go
+RUN go build -o /go/bin/xapsd ./cmd/xapsd/main.go
 
 
 # ==========================================
