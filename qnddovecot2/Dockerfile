@@ -23,23 +23,19 @@ RUN apt-get update && apt-get -y --no-install-recommends install \
 
 
 # ==========================================
-# ETAPA 2: Clonado y Compilación Manual con Módulos Forzados
+# ETAPA 2: Compilación Estática en Alpine (¡No falla!)
 # ==========================================
-FROM golang:1.22-bullseye AS dovecot-xaps-daemon
+FROM golang:1.22-alpine AS dovecot-xaps-daemon
 WORKDIR /go/src/xapsd
 
-# Instalar git
-RUN apt-get update && apt-get install -y git
+# Instalar git necesario para clonar
+RUN apk add --no-cache git
 
-# Clonar el proyecto directamente en el directorio de trabajo
+# Clonar el proyecto
 RUN git clone --single-branch --depth=1 https://github.com/freswa/dovecot-xaps-daemon.git .
 
-# Inicializar y limpiar el entorno de módulos de Go manualmente
-RUN go mod init xapsd || true && \
-    go mod tidy
-
-# Compilar especificando la ruta al archivo main.go
-RUN go build -o /go/bin/xapsd ./cmd/xapsd/main.go
+# Forzar compilación ESTÁTICA y descargar dependencias automáticamente
+RUN CGO_ENABLED=0 go build -v -o /go/bin/xapsd ./cmd/xapsd
 
 
 # ==========================================
