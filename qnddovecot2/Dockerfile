@@ -1,15 +1,18 @@
 # ==========================================
-# ETAPA 1: Compilar el DAEMON (Go) en un entorno moderno
+# ETAPA 1 CORREGIDA: Descarga e Instalación Limpia de Go (¡Inmune a código roto!)
 # ==========================================
 FROM golang:1.22-alpine AS go-builder
-WORKDIR /tmp/dovecot-xaps-daemon
+WORKDIR /go
+
+# Instalar git porque Go lo necesita internamente para resolver el paquete
 RUN apk add --no-cache git
-RUN git clone --single-branch --depth=1 https://github.com/freswa/dovecot-xaps-daemon.git .
-# Compilación ESTÁTICA (CGO_ENABLED=0) para que el binario funcione en cualquier Linux
-RUN CGO_ENABLED=0 go build -v -o xapsd ./cmd/xapsd
+
+# go install descarga la última versión estable validada por el proxy de Go
+# y genera el binario directamente en /go/bin/xapsd de forma limpia
+RUN CGO_ENABLED=0 go install github.com/freswa/dovecot-xaps-daemon/cmd/xapsd@latest
 
 # ==========================================
-# ETAPA 2: Compilar el PLUGIN (C) en Debian 11
+# ETAPA 2: Compilar el PLUGIN (C) en Debian 11 (Se mantiene igual)
 # ==========================================
 FROM debian:11-slim AS c-builder
 ARG DEBIAN_FRONTEND=noninteractive
@@ -85,7 +88,7 @@ RUN mkdir -p /var/mail/vhosts && \
     chmod -R 700 /var/mail
 
 # -----------------------------------------------------------------
-# INYECCIÓN DE COMPONENTES XAPS (Extracción Multi-Etapa)
+# INYECCIÓN DE COMPONENTES XAPS (Ajustado el origen del binario)
 # -----------------------------------------------------------------
 # 1. Copiar los módulos (.so) del plugin IMAP (Desde c-builder)
 COPY --from=c-builder /usr/lib/dovecot/modules/*_xaps_* /usr/lib/dovecot/modules/
@@ -93,8 +96,8 @@ COPY --from=c-builder /usr/lib/dovecot/modules/*_xaps_* /usr/lib/dovecot/modules
 # 2. Copiar el archivo de configuración por defecto (Desde c-builder)
 COPY --from=c-builder /tmp/dovecot-xaps-plugin/xaps.conf /etc/dovecot/conf.d/95-xaps.conf
 
-# 3. Copiar el binario ejecutable del Demonio XAPS (Desde go-builder)
-COPY --from=go-builder /tmp/dovecot-xaps-daemon/xapsd /usr/bin/xapsd
+# 3. Copiar el binario ejecutable del Demonio XAPS (Desde la ruta de go install en go-builder)
+COPY --from=go-builder /go/bin/xapsd /usr/bin/xapsd
 
 # Crear usuario seguro para el demonio xapsd y sus directorios de estado
 RUN adduser --system --group --disabled-password --home /var/mail-state/lib-xapsd --no-create-home xapsd && \
