@@ -1,38 +1,38 @@
 # ==========================================
-# ETAPA 1: Compilar el Plugin (C) y el Demonio (Go)
+# ETAPA 1: Compilar el DAEMON (Go) en un entorno moderno
 # ==========================================
-FROM debian:11-slim AS builder
+FROM golang:1.22-alpine AS go-builder
+WORKDIR /tmp/dovecot-xaps-daemon
+RUN apk add --no-cache git
+RUN git clone --single-branch --depth=1 https://github.com/freswa/dovecot-xaps-daemon.git .
+# Compilación ESTÁTICA (CGO_ENABLED=0) para que el binario funcione en cualquier Linux
+RUN CGO_ENABLED=0 go build -v -o xapsd ./cmd/xapsd
+
+# ==========================================
+# ETAPA 2: Compilar el PLUGIN (C) en Debian 11
+# ==========================================
+FROM debian:11-slim AS c-builder
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Instalar repositorios de Dovecot correspondientes a tu versión
 ADD dovecot.gpg /etc/apt/keyrings/dovecot.gpg
 ADD dovecot.list /etc/apt/sources.list.d
 
-# Instalar TODAS las dependencias de compilación exigidas por la documentación
+WORKDIR /tmp/dovecot-xaps-plugin
 RUN apt-get update && apt-get -y --no-install-recommends install \
     git \
     cmake \
     make \
     build-essential \
     dovecot-dev \
-    golang-go \
     ca-certificates
 
-# 1. Clonar y Compilar el PLUGIN de Dovecot (C)
-WORKDIR /tmp/dovecot-xaps-plugin
 RUN git clone --single-branch --depth=1 https://github.com/freswa/dovecot-xaps-plugin.git . && \
     mkdir build && cd build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
     make install
 
-# 2. Clonar y Compilar el DAEMON (Go) usando el entorno nativo de compilación de Debian
-WORKDIR /tmp/dovecot-xaps-daemon
-RUN git clone --single-branch --depth=1 https://github.com/freswa/dovecot-xaps-daemon.git . && \
-    go build -v -o xapsd ./cmd/xapsd
-
-
 # ==========================================
-# ETAPA 2: Tu contenedor de producción Dovecot
+# ETAPA 3: Tu contenedor original Dovecot de producción
 # ==========================================
 FROM debian:11-slim
 
@@ -85,18 +85,18 @@ RUN mkdir -p /var/mail/vhosts && \
     chmod -R 700 /var/mail
 
 # -----------------------------------------------------------------
-# INYECCIÓN DE COMPONENTES XAPS (Extraídos de la etapa Builder)
+# INYECCIÓN DE COMPONENTES XAPS (Extracción Multi-Etapa)
 # -----------------------------------------------------------------
-# Copiar los módulos (.so) del plugin IMAP de XAPS a la ruta de Dovecot
-COPY --from=builder /usr/lib/dovecot/modules/*_xaps_* /usr/lib/dovecot/modules/
+# 1. Copiar los módulos (.so) del plugin IMAP (Desde c-builder)
+COPY --from=c-builder /usr/lib/dovecot/modules/*_xaps_* /usr/lib/dovecot/modules/
 
-# Copiar el archivo de configuración por defecto que menciona la documentación
-COPY --from=builder /tmp/dovecot-xaps-plugin/xaps.conf /etc/dovecot/conf.d/95-xaps.conf
+# 2. Copiar el archivo de configuración por defecto (Desde c-builder)
+COPY --from=c-builder /tmp/dovecot-xaps-plugin/xaps.conf /etc/dovecot/conf.d/95-xaps.conf
 
-# Copiar el binario ejecutable del Demonio XAPS
-COPY --from=builder /tmp/dovecot-xaps-daemon/xapsd /usr/bin/xapsd
+# 3. Copiar el binario ejecutable del Demonio XAPS (Desde go-builder)
+COPY --from=go-builder /tmp/dovecot-xaps-daemon/xapsd /usr/bin/xapsd
 
-# Crear usuario seguro para el demonio aislado xapsd y sus directorios de estado
+# Crear usuario seguro para el demonio xapsd y sus directorios de estado
 RUN adduser --system --group --disabled-password --home /var/mail-state/lib-xapsd --no-create-home xapsd && \
     mkdir -p /var/run/xapsd /etc/xapsd /var/run/dovecot && \
     chown -R xapsd:xapsd /var/run/xapsd /etc/xapsd
