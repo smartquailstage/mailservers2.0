@@ -21,13 +21,22 @@ RUN apt-get update && apt-get -y --no-install-recommends install \
     make install
 
 # ==========================================
-# ETAPA 2 CORREGIDA: Compilar el Demonio en Go usando Debian
+# ETAPA 2 CORREGIDA: Usando Go 1.22 en Debian Bullseye
 # ==========================================
-FROM golang:1.19-bullseye AS dovecot-xaps-daemon
+FROM golang:1.22-bullseye AS dovecot-xaps-daemon
 WORKDIR /go/dovecot-xaps-daemon
-RUN apt-get update && apt-get install -y git && \
-    git clone --single-branch --depth=1 https://github.com/freswa/dovecot-xaps-daemon . && \
-    go build ./cmd/xapsd
+
+# Instalar git y dependencias básicas
+RUN apt-get update && apt-get install -y git
+
+# Clonar el repositorio
+RUN git clone --single-branch --depth=1 https://github.com/freswa/dovecot-xaps-daemon .
+
+# Descargar los módulos de Go explícitamente antes de compilar
+RUN go mod download
+
+# Compilar forzando el nombre del binario de salida
+RUN go build -o xapsd ./cmd/xapsd
 
 # ==========================================
 # ETAPA 3: Tu contenedor original Dovecot
