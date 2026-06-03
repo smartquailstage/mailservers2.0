@@ -21,13 +21,11 @@ RUN apt-get update && apt-get -y --no-install-recommends install \
     make install
 
 # ==========================================
-# ETAPA 2: Compilar el Demonio en Go (No cambia)
+# ETAPA 2 CORREGIDA: Compilar el Demonio en Go usando Debian
 # ==========================================
-FROM golang:1.19-alpine AS dovecot-xaps-daemon
-ENV GOPROXY=https://proxy.golang.org,direct
-ENV CGO_ENABLED=0
+FROM golang:1.19-bullseye AS dovecot-xaps-daemon
 WORKDIR /go/dovecot-xaps-daemon
-RUN apk add --no-cache git && \
+RUN apt-get update && apt-get install -y git && \
     git clone --single-branch --depth=1 https://github.com/freswa/dovecot-xaps-daemon . && \
     go build ./cmd/xapsd
 
