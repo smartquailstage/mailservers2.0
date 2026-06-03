@@ -21,22 +21,18 @@ RUN apt-get update && apt-get -y --no-install-recommends install \
     make install
 
 # ==========================================
-# ETAPA 2 CORREGIDA: Usando Go 1.22 en Debian Bullseye
+# ETAPA 2 DEFINITIVA: Compilación automática con Go 1.22
 # ==========================================
 FROM golang:1.22-bullseye AS dovecot-xaps-daemon
-WORKDIR /go/dovecot-xaps-daemon
+WORKDIR /go
 
-# Instalar git y dependencias básicas
+# Instalar git (necesario para que Go descargue el proyecto remoto)
 RUN apt-get update && apt-get install -y git
 
-# Clonar el repositorio
-RUN git clone --single-branch --depth=1 https://github.com/freswa/dovecot-xaps-daemon .
+# go install descarga, resuelve módulos y compila el binario automáticamente
+# El binario compilado quedará guardado en /go/bin/xapsd
+RUN go install github.com/freswa/dovecot-xaps-daemon/cmd/xapsd@latest
 
-# Descargar los módulos de Go explícitamente antes de compilar
-RUN go mod download
-
-# Compilar forzando el nombre del binario de salida
-RUN go build -o xapsd ./cmd/xapsd
 
 # ==========================================
 # ETAPA 3: Tu contenedor original Dovecot
