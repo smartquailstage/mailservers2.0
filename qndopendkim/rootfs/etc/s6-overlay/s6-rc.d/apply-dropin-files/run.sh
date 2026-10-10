@@ -16,12 +16,16 @@ chmod 750 "$KEYS_DIR"
 if [ ! -f "$KEYS_DIR/$KEY_NAME.private" ]; then
   echo "Generando claves DKIM para el dominio $DOMAIN..."
   opendkim-genkey -b 2048 -d "$DOMAIN" -s "$KEY_NAME" -D "$KEYS_DIR"
-  chmod 600 "$KEYS_DIR/$KEY_NAME.private"
-  chmod 644 "$KEYS_DIR/$KEY_NAME.txt"
   echo "Claves DKIM generadas en $KEYS_DIR"
 else
   echo "Las claves DKIM ya existen en $KEYS_DIR, no se generarán nuevas."
 fi
+
+# Asegurar permisos correctos siempre (tanto si se acaban de crear como si ya existían)
+chown -R opendkim:opendkim "$KEYS_DIR"
+chmod 750 "$KEYS_DIR"
+chmod 600 "$KEYS_DIR/$KEY_NAME.private"
+chmod 644 "$KEYS_DIR/$KEY_NAME.txt"
 
 # Aplicando los archivos .conf de OpenDKIM
 for file in /etc/opendkim/conf.d/*.conf; do
