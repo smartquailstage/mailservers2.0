@@ -63,7 +63,7 @@ RUN echo "@edge-community https://dl-cdn.alpinelinux.org/alpine/edge/community" 
         --mandir=/tmp/opendkim/man \
  && make \
     \
- # Create OpenDKIM user and group
+ # Create OpenDKIM user and group with explicit UID/GID 90:91
  && addgroup -S -g 91 opendkim \
  && adduser -S -u 90 -D -s /sbin/nologin \
             -H -h /run/opendkim \
@@ -73,8 +73,9 @@ RUN echo "@edge-community https://dl-cdn.alpinelinux.org/alpine/edge/community" 
     \
  # Install OpenDKIM
  && make install \
- # Prepare run directory
+ # Prepare run directory and keys directory with proper ownership
  && install -d -o opendkim -g opendkim /run/opendkim/ \
+ && install -d -o opendkim -g opendkim /etc/opendkim/keys/ \
  # Preserve licenses
  && install -d /usr/share/licenses/opendkim/ \
  && mv /tmp/opendkim/doc/LICENSE* \

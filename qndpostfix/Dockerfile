@@ -27,11 +27,16 @@ RUN apk update && apk add --no-cache \
 # 2. Configura zona horaria
 RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# 3. Crea usuarios y grupos unificando vmail a UID/GID 1000
+# 3. Crea usuarios y grupos si no existen
 RUN addgroup -g 1001 postfix || true \
     && adduser -D -u 1001 -G postfix -s /sbin/nologin postfix || true \
     && addgroup -g 1000 vmail || true \
     && adduser -D -u 1000 -G vmail -s /sbin/nologin vmail || true
+
+# 4. Copia archivos de configuración de Postfix
+COPY postfix/ /etc/postfix/
+COPY postfix/start.sh /usr/local/bin/start.sh
+COPY postfix/sql/ /etc/postfix/sql/
 
 # 5. Asegura permisos correctos
 RUN chmod +x /usr/local/bin/start.sh \
@@ -39,18 +44,11 @@ RUN chmod +x /usr/local/bin/start.sh \
     && mkdir -p /var/mail/vhosts \
     && chown -R postfix:postfix /var/spool/postfix /etc/postfix \
     && chmod -R 750 /var/spool/postfix \
-    && chown -R vmail:vmail /var/mail \
+    && chown -R 1000:1000 /var/mail \
     && chmod 755 /var/mail \
     && chmod 700 /etc/ssl/private \
     && chown root:root /etc/ssl/certs /etc/ssl/private \
     && chmod 640 /etc/postfix/*.cf
-
-# 4. Copia archivos de configuración de Postfix
-COPY postfix/ /etc/postfix/
-COPY postfix/start.sh /usr/local/bin/start.sh
-COPY postfix/sql/ /etc/postfix/sql/
-
-
 
 # 6. Expone puertos necesarios
 EXPOSE 25 465 587
