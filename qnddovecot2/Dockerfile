@@ -6,7 +6,6 @@ ENV container=docker \
     LC_ALL=C
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Si necesitas usar los repositorios nativos de Debian (Recomendado):
 RUN apt-get update && apt-get install -y --fix-missing \
     -o Acquire::Retries=3 \
     tini \
@@ -15,7 +14,6 @@ RUN apt-get update && apt-get install -y --fix-missing \
     dovecot-imapd \
     dovecot-ldap \
     dovecot-lmtpd \
-    dovecot-lua \
     dovecot-managesieved \
     dovecot-mysql \
     dovecot-pgsql \
