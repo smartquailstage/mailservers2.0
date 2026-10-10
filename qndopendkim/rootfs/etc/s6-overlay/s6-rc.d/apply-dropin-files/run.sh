@@ -2,14 +2,13 @@
 
 set -e
 
-# Variables de entorno
-DOMAIN="${DOMAIN:-smartquail.io}"  # Usará smartquail.io si no se define la variable de entorno DOMAIN
+DOMAIN="${DOMAIN:-smartquail.io}"
 KEYS_DIR="/etc/opendkim/keys/$DOMAIN"
 KEY_NAME="default"
 
 # Crear directorio para las claves si no existe
 mkdir -p "$KEYS_DIR"
-chown -R opendkim:opendkim "$KEYS_DIR"
+chown -R 90:91 "$KEYS_DIR"
 chmod 750 "$KEYS_DIR"
 
 # Verificar si la clave privada ya existe. Si no, generarla.
@@ -21,8 +20,8 @@ else
   echo "Las claves DKIM ya existen en $KEYS_DIR, no se generarán nuevas."
 fi
 
-# Asegurar permisos correctos siempre (tanto si se acaban de crear como si ya existían)
-chown -R opendkim:opendkim "$KEYS_DIR"
+# Forzar permisos correctos para el UID interno (90:91)
+chown -R 90:91 "$KEYS_DIR"
 chmod 750 "$KEYS_DIR"
 chmod 600 "$KEYS_DIR/$KEY_NAME.private"
 chmod 644 "$KEYS_DIR/$KEY_NAME.txt"
@@ -34,8 +33,7 @@ for file in /etc/opendkim/conf.d/*.conf; do
   cat "$file" >> /etc/opendkim/opendkim.conf
 done
 
-# Ajustes de permisos finales para los archivos de configuración
-chown opendkim:opendkim /etc/opendkim/opendkim.conf
+chown 90:91 /etc/opendkim/opendkim.conf
 chmod 644 /etc/opendkim/opendkim.conf
 
 echo "Configuración de OpenDKIM completada."
