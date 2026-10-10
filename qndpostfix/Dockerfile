@@ -30,8 +30,10 @@ RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # 3. Crea usuarios y grupos si no existen
 RUN addgroup -g 1001 postfix || true \
     && adduser -D -u 1001 -G postfix -s /sbin/nologin postfix || true \
-    && addgroup -g 1002 vmail || true \
-    && adduser -D -u 1002 -G vmail -s /sbin/nologin vmail || true
+    && addgroup -g 1000 vmail || true \
+    && adduser -D -u 1000 -G vmail -s /sbin/nologin vmail || true
+
+
 
 # 4. Copia archivos de configuración de Postfix
 COPY postfix/ /etc/postfix/
@@ -46,9 +48,13 @@ RUN chmod +x /usr/local/bin/start.sh \
     && chmod -R 750 /var/spool/postfix \
     && chown -R vmail:vmail /var/mail \
     && chmod -R 700 /var/mail \
+    && chmod 755 /var/mail \
     && chmod 700 /etc/ssl/private \
     && chown root:root /etc/ssl/certs /etc/ssl/private \
     && chmod 640 /etc/postfix/*.cf
+
+
+
 
 # 6. Expone puertos necesarios
 EXPOSE 25 465 587

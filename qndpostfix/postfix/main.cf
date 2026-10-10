@@ -168,8 +168,8 @@ virtual_mailbox_maps = pgsql:/etc/postfix/sql/virtual_mailbox_maps.cf
 virtual_alias_maps = pgsql:/etc/postfix/sql/virtual_alias_maps.cf
 
 virtual_minimum_uid = 100
-virtual_uid_maps = static:102
-virtual_gid_maps = static:102
+virtual_uid_maps = static:1000
+virtual_gid_maps = static:1000
 
 virtual_alias_domains = *
 
