@@ -115,8 +115,16 @@ function serviceStart {
   insertInitialData
   serviceConf
   
-  log "[ Iniciando Postfix en primer plano... ]"
-  exec /usr/sbin/postfix start-fg
+  log "[ Iniciando Postfix... ]"
+  
+  # Limpiar archivos de bloqueo previos si existen por reinicios forzados
+  rm -f /var/spool/postfix/pid/*.pid
+  
+  # Iniciar Postfix en segundo plano y mantener vivo el contenedor redirigiendo logs
+  postfix start
+  sleep 2
+  
+  tail -f /var/log/mail.log /var/log/maillog 2>/dev/null || tail -f /dev/null
 }
 
 # Ejecuta y redirige logs al stdout del contenedor
