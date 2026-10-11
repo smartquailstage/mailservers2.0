@@ -117,8 +117,8 @@ function serviceStart {
   
   log "[ Iniciando Postfix... ]"
   
-  # Limpiar archivos de bloqueo previos si existen por reinicios forzados
-  rm -f /var/spool/postfix/pid/*.pid
+  # Limpiar archivos de bloqueo previos sin comillas
+  rm -f /var/spool/postfix/pid/*.pid 2>/dev/null || true
   
   # Iniciar Postfix en segundo plano y mantener vivo el contenedor redirigiendo logs
   postfix start
@@ -126,6 +126,3 @@ function serviceStart {
   
   tail -f /var/log/mail.log /var/log/maillog 2>/dev/null || tail -f /dev/null
 }
-
-# Ejecuta y redirige logs al stdout del contenedor
-serviceStart >> /proc/1/fd/1 2>&1
