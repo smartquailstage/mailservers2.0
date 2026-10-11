@@ -20,24 +20,6 @@ function log {
     echo "$(date) $ME - $@"
 }
 
-function addUserInfo {
-  local user="support"
-  local domain="smartquail.io"
-  local mail_home="/var/mail/vhosts/${domain}/${user}"
-  local user_maildir="${mail_home}/Maildir"
-
-  if ! getent passwd "$user" &>/dev/null; then
-    log "Adding user '${user}'"
-    adduser --system --home "/nonexistent" --no-create-home "$user"
-    mkdir -p "${user_maildir}/tmp" "${user_maildir}/new" "${user_maildir}/cur"
-    chown -R vmail:vmail "$mail_home"
-    chmod -R 700 "$mail_home"
-    log "User '${user}' added with maildir '${user_maildir}'"
-  else
-    log "User '${user}' already exists"
-  fi
-}
-
 function createTable {
   local table_name=$1
   local table_sql=$2
@@ -110,7 +92,6 @@ function insertInitialData {
 }
 
 function serviceStart {
-  addUserInfo
   createVirtualTables
   insertInitialData
 
