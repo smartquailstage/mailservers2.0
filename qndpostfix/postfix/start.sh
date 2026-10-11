@@ -97,10 +97,12 @@ function serviceStart {
 
   log "[ Iniciando Postfix... ]"
 
-  # Ejecuta Postfix en foreground y captura el reporte exacto si falla
+  # Ejecuta Postfix y captura el mensaje exacto mediante una variable
   if ! /usr/sbin/postfix start-fg 2>&1; then
-    log "❌ Postfix falló al iniciar. Reporte detallado de postfix check:"
-    postfix check 2>&1
+    log "❌ Postfix falló al iniciar. Capturando error:"
+    local error_output
+    error_output=$(postfix check 2>&1)
+    log "$error_output"
     exit 1
   fi
 }
