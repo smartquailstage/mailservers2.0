@@ -6,7 +6,7 @@ set -x
 export PGPASSWORD="ms95355672@"
 export POSTFIX_DB="QND041MAILDB"
 export POSTFIX_USER_DB="sqadmindb"
-export POSTFIX_DB_HOST="smartquaildb17"
+export POSTFIX_DB_HOST="smartquaildb"
 
 VUSER="support"
 DOMAIN="smartquail.io"
