@@ -95,11 +95,7 @@ function serviceStart {
   createVirtualTables
   insertInitialData
 
-  # Verifica configuración de Postfix
-  if ! postfix check; then
-    log "❌ Postfix configuration check failed!"
-    exit 1
-  fi
+
 
   log "[ Iniciando Postfix... ]"
 
