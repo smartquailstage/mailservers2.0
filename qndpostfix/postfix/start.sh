@@ -2,7 +2,7 @@
 
 # Configuración de las credenciales de PostgreSQL
 export PGPASSWORD="ms95355672@"
-export POSTFIX_DB="QND41MAILDB"
+export POSTFIX_DB="QND041MAILDB"
 export PPOSTFIX_USER_DB="sqadmindb"
 export POSTFIX_DB_HOST="smartquaildb"
 
