@@ -95,12 +95,14 @@ function serviceStart {
   createVirtualTables
   insertInitialData
 
-
-
   log "[ Iniciando Postfix... ]"
 
-  # Ejecuta Postfix en modo foreground (requerido para contenedor)
-  exec /usr/sbin/postfix start-fg
+  # Ejecuta Postfix en modo foreground y captura el error detallado si falla
+  /usr/sbin/postfix start-fg 2>&1 || {
+    log "❌ Postfix falló al iniciar. Ejecutando verificación de configuración:"
+    postfix check
+    exit 1
+  }
 }
 
 # Ejecuta y redirige logs al stdout del contenedor
