@@ -4,9 +4,15 @@ set -x
 
 ME=$(basename "$0")
 
-# NOTA: Los permisos de /etc/postfix/dynamicmaps.cf y archivos sql
-# deben configurarse durante la construcción en el Dockerfile, ya que
-# este contenedor se ejecuta como usuario no privilegiado (1001).
+# Corregir permisos para evitar que postfix ignore los mapas pgsql
+chown root:root /etc/postfix/dynamicmaps.cf
+chmod 0644 /etc/postfix/dynamicmaps.cf
+
+chown -R root:root /etc/postfix/dynamicmaps.cf.d/
+chmod -R go-w /etc/postfix/dynamicmaps.cf.d/
+
+chown root:root /etc/postfix/sql/virtual_alias_maps.cf
+chmod 0600 /etc/postfix/sql/virtual_alias_maps.cf
 
 export PGPASSWORD="$POSTFIX_PASSWORD_DB"
 export PGUSER="$POSTFIX_USER_DB"
@@ -17,7 +23,25 @@ export DOMAIN="$DOMAIN"
 export MAILBOX_SIZE_LIMIT="${MAILBOX_SIZE_LIMIT:-51200000}"
 
 function log {
-    echo "$(date) $ME - $@"
+  echo "$(date) $ME - $@"
+}
+
+function addUserInfo {
+  local user="support"
+  local domain="smartquail.io"
+  local mail_home="/var/mail/vhosts/${domain}/${user}"
+  local user_maildir="${mail_home}/Maildir"
+
+  if ! getent passwd "$user" &>/dev/null; then
+    log "Adding user '${user}'"
+    adduser --system --home "/nonexistent" --no-create-home "$user"
+    mkdir -p "${user_maildir}/tmp" "${user_maildir}/new" "${user_maildir}/cur"
+    chown -R vmail:vmail "$mail_home"
+    chmod -R 700 "$mail_home"
+    log "User '${user}' added with maildir '${user_maildir}'"
+  else
+    log "User '${user}' already exists"
+  fi
 }
 
 function createTable {
@@ -92,17 +116,20 @@ function insertInitialData {
 }
 
 function serviceStart {
+  addUserInfo
   createVirtualTables
   insertInitialData
 
+  # Verifica configuración de Postfix
+  if ! postfix check; then
+    log "❌ Postfix configuration check failed!"
+    exit 1
+  fi
+
   log "[ Iniciando Postfix... ]"
 
-  # Ejecuta Postfix en modo foreground y captura el error detallado si falla
-  /usr/sbin/postfix start-fg 2>&1 || {
-    log "❌ Postfix falló al iniciar. Ejecutando verificación de configuración:"
-    postfix check
-    exit 1
-  }
+  # Ejecuta Postfix en modo foreground (requerido para contenedor)
+  exec /usr/sbin/postfix start-fg
 }
 
 # Ejecuta y redirige logs al stdout del contenedor
