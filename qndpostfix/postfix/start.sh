@@ -4,23 +4,6 @@ set -x
 
 ME=$(basename "$0")
 
-# ==========================================
-# SECCIÓN: Corregir permisos para OpenDKIM
-# ==========================================
-if [ -d /etc/opendkim/keys ]; then
-    echo "$(date) $ME Corrigiendo permisos para OpenDKIM en /etc/opendkim/keys..."
-    # Asegurar que pertenezcan al usuario y grupo opendkim (UID/GID 90 por defecto)
-    chown -R 90:90 /etc/opendkim/keys || true
-    # Permiso estricto para el directorio de llaves (OpenDKIM requiere que no sea escribible por otros)
-    chmod 700 /etc/opendkim/keys || true
-    # Si hay subdirectorios (ej. smartquail.io), ajustar permisos
-    find /etc/opendkim/keys -type d -exec chmod 700 {} \; || true
-    # Los archivos de llaves privadas deben ser estrictamente 600
-    find /etc/opendkim/keys -type f -name "*.private" -exec chmod 600 {} \; || true
-    # Claves públicas pueden ser legibles (644)
-    find /etc/opendkim/keys -type f -name "*.txt" -exec chmod 644 {} \; || true
-fi
-
 # Corregir permisos para evitar que postfix ignore los mapas pgsql
 chown root:root /etc/postfix/dynamicmaps.cf
 chmod 0644 /etc/postfix/dynamicmaps.cf
@@ -40,7 +23,7 @@ export DOMAIN="$DOMAIN"
 export MAILBOX_SIZE_LIMIT="${MAILBOX_SIZE_LIMIT:-51200000}"
 
 function log {
-    echo "$(date) $ME $@"
+  echo "$(date) $ME - $@"
 }
 
 function addUserInfo {
