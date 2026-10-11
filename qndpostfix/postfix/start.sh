@@ -4,15 +4,9 @@ set -x
 
 ME=$(basename "$0")
 
-# Corregir permisos para evitar que postfix ignore los mapas pgsql
-chown root:root /etc/postfix/dynamicmaps.cf
-chmod 0644 /etc/postfix/dynamicmaps.cf
-
-chown -R root:root /etc/postfix/dynamicmaps.cf.d/
-chmod -R go-w /etc/postfix/dynamicmaps.cf.d/
-
-chown root:root /etc/postfix/sql/virtual_alias_maps.cf
-chmod 0600 /etc/postfix/sql/virtual_alias_maps.cf
+# NOTA: Los permisos de /etc/postfix/dynamicmaps.cf y archivos sql
+# deben configurarse durante la construcción en el Dockerfile, ya que
+# este contenedor se ejecuta como usuario no privilegiado (1001).
 
 export PGPASSWORD="$POSTFIX_PASSWORD_DB"
 export PGUSER="$POSTFIX_USER_DB"
@@ -23,7 +17,7 @@ export DOMAIN="$DOMAIN"
 export MAILBOX_SIZE_LIMIT="${MAILBOX_SIZE_LIMIT:-51200000}"
 
 function log {
-  echo "$(date) $ME - $@"
+    echo "$(date) $ME - $@"
 }
 
 function addUserInfo {
