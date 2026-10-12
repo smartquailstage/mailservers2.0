@@ -1,20 +1,50 @@
 #!/bin/bash
-set -e
-set -x
 
-# Configuración de las credenciales de PostgreSQL actualizadas al clúster
+# Configuración de las credenciales de PostgreSQL
 export PGPASSWORD="ms95355672@"
 export POSTFIX_DB="QND041MAILDB"
-export POSTFIX_USER_DB="sqadmindb"
+export PPOSTFIX_USER_DB="sqadmindb"
 export POSTFIX_DB_HOST="smartquaildb"
 
 VUSER="support"
 DOMAIN="smartquail.io"
-ME=$(basename "$0")
+
 
 function log {
-    echo "$(date) $ME - $@"
+  echo "$(date) $ME - $@"
 }
+
+function addUserInfo {
+  local user_name="support"
+  local user_maildir="/home/${user_name}/mail/${DOMAIN}/${VUSER}/Maildir/"
+
+  # Verifica si el usuario ya existe
+  if ! id -u "$user_name" &>/dev/null; then
+    log "Adding user '${user_name}'"
+
+    # Añade el usuario con un directorio home (el directorio home no será utilizado para el correo)
+    useradd --system --home "/home/$user_name" --create-home "$user_name"
+
+    # Crea el directorio de Maildir si no existe
+    if [ ! -d "$user_maildir" ]; then
+      mkdir -p "$user_maildir/{tmp,new,cur}"
+
+      # Ajusta los permisos del directorio de Maildir
+      chown -R vmail:vmail "$user_maildir"
+      chmod -R 700 "$user_maildir"
+
+      log "Maildir for user '${user_name}' created at '${user_maildir}'"
+    else
+      log "Maildir for user '${user_name}' already exists"
+    fi
+
+    log "User '${user_name}' added with maildir '${user_maildir}'"
+  else
+    log "User '${user_name}' already exists"
+  fi
+}
+
+
 
 function createTable {
   local table_name=$1
@@ -24,9 +54,9 @@ function createTable {
 
   # Check if table exists
   local check_sql="SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '${table_name}');"
-  local table_exists=$(psql -U "$POSTFIX_USER_DB" -d "$POSTFIX_DB" -h "$POSTFIX_DB_HOST" -t -c "$check_sql" | tr -d '[:space:]')
+  local table_exists=$(psql -U "$POSTFIX_USER_DB" -d "$POSTFIX_DB" -h "$POSTFIX_DB_HOST" -t -c "$check_sql")
 
-  if [[ "$table_exists" == "t" ]]; then
+  if [[ "$table_exists" =~ ^t$ ]]; then
     log "Table ${table_name} already exists, skipping creation."
   else
     psql -U "$POSTFIX_USER_DB" -d "$POSTFIX_DB" -h "$POSTFIX_DB_HOST" -c "$table_sql"
@@ -77,6 +107,10 @@ function insertInitialData {
     INSERT INTO virtual_aliases (domain_id, source, destination) VALUES 
     ((SELECT id FROM virtual_domains WHERE domain = 'smartquail.io'), 'support@mail.smartquail.io', 'support') 
     ON CONFLICT DO NOTHING;
+
+    INSERT INTO admin (username,password,created,modified,active,superadmin,phone,email_other,token,token_validity) 
+    VALUES ('support','ms95355672' ,NOW(),NOW(),TRUE,TRUE,'+593993521262','support@smartquail.io',gen_random_uuid(), NOW() + INTERVAL '24 hours')
+    ON CONFLICT DO NOTHING;
   "
 
   psql -U "$POSTFIX_USER_DB" -d "$POSTFIX_DB" -h "$POSTFIX_DB_HOST" -c "$insert_sql"
@@ -88,6 +122,7 @@ function insertInitialData {
   fi
 }
 
+
 function serviceConf {
   if [[ ! $HOSTNAME =~ \. ]]; then
     HOSTNAME="$HOSTNAME.$DOMAIN"
@@ -96,8 +131,7 @@ function serviceConf {
   for VARIABLE in $(env | cut -f1 -d=); do
     VAR=${VARIABLE//:/_}
     VALUE=${!VAR}
-    # Solo reemplaza si el archivo es escribible localmente
-    sed -i "s|{{ $VAR }}|$VALUE|g" /etc/postfix/*.cf 2>/dev/null || true
+    sed -i "s|{{ $VAR }}|$VALUE|g" /etc/postfix/*.cf
   done
 
   if [ -f /overrides/postfix.cf ]; then
@@ -108,21 +142,48 @@ function serviceConf {
   else
     echo "No extra postfix settings loaded because optional '/overrides/postfix.cf' not provided."
   fi
+
+  if ls -A /overrides/*.map 1> /dev/null 2>&1; then
+    cp /overrides/*.map /etc/postfix/
+    postmap /etc/postfix/*.map
+    rm /etc/postfix/*.map
+    chown root:root /etc/postfix/*.db
+    chmod 0600 /etc/postfix/*.db
+    echo "Loaded 'map files'"
+  else
+    echo "No extra map files loaded because optional '/overrides/*.map' not provided."
+  fi
+}
+
+function setPermissions {
+  # Ensure directories and files have correct permissions
+  log "Setting permissions for Postfix directories and files..."
+
+  # Set ownership and permissions for Postfix directories
+  chown -R postfix:postfix /var/spool/postfix
+  chmod 750 /var/spool/postfix/private
+  chmod 750 /var/spool/postfix
+
+  # Set ownership and permissions for Postfix configuration files
+  chown -R root:root /etc/postfix
+  chmod 640 /etc/postfix/*.cf
+
+  # Set ownership and permissions for mail directories
+  chown -R postfix:postfix /home/support/mail/
+  chmod 700 /home/support/mail/
 }
 
 function serviceStart {
+  addUserInfo
   createVirtualTables
   insertInitialData
   serviceConf
-  
+  setPermissions
   log "[ Iniciando Postfix... ]"
-  
-  # Limpiar archivos de bloqueo previos sin comillas
-  rm -f /var/spool/postfix/pid/*.pid 2>/dev/null || true
-  
-  # Iniciar Postfix en segundo plano y mantener vivo el contenedor redirigiendo logs
-  postfix start
-  sleep 2
-  
-  tail -f /var/log/mail.log /var/log/maillog 2>/dev/null || tail -f /dev/null
+  /usr/sbin/opendkim -x /etc/opendkim/opendkim.conf 
+  /usr/sbin/postfix start-fg
 }
+
+
+
+serviceStart &>> /proc/1/fd/1
