@@ -20,9 +20,13 @@ else
   echo "Las claves DKIM ya existen en $KEYS_DIR, no se generarán nuevas."
 fi
 
-# Forzar permisos correctos para el UID interno (90:91)
-chown -R 90:91 "$KEYS_DIR"
-chmod 750 "$KEYS_DIR"
+# Obtener el usuario actual que ejecuta el proceso
+CURRENT_UID=$(id -u)
+CURRENT_GID=$(id -g)
+
+# Forzar permisos correctos para el UID de ejecución actual
+chown -R "$CURRENT_UID:$CURRENT_GID" "$KEYS_DIR"
+chmod 700 "$KEYS_DIR"
 chmod 600 "$KEYS_DIR/$KEY_NAME.private"
 chmod 644 "$KEYS_DIR/$KEY_NAME.txt"
 
