@@ -27,11 +27,7 @@ RUN apk update && apk add --no-cache \
 # 2. Configura zona horaria
 RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# 3. Crea usuarios y grupos si no existen
-RUN addgroup -g 1001 postfix || true \
-    && adduser -D -u 1001 -G postfix -s /sbin/nologin postfix || true \
-    && addgroup -g 1000 vmail || true \
-    && adduser -D -u 1000 -G vmail -s /sbin/nologin vmail || true
+
 
 # 4. Copia archivos de configuración de Postfix
 COPY postfix/ /etc/postfix/
