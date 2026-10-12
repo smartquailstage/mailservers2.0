@@ -8,8 +8,6 @@ KEY_NAME="default"
 
 # Crear directorio para las claves si no existe
 mkdir -p "$KEYS_DIR"
-chown -R 90:91 "$KEYS_DIR"
-chmod 750 "$KEYS_DIR"
 
 # Verificar si la clave privada ya existe. Si no, generarla.
 if [ ! -f "$KEYS_DIR/$KEY_NAME.private" ]; then
@@ -20,12 +18,16 @@ else
   echo "Las claves DKIM ya existen en $KEYS_DIR, no se generarán nuevas."
 fi
 
-# Obtener el usuario actual que ejecuta el proceso
-CURRENT_UID=$(id -u)
-CURRENT_GID=$(id -g)
+# Forzar el propietario al usuario del sistema de OpenDKIM (usualmente UID 90 o el usuario opendkim)
+# Si el contenedor corre como root, asignamos al usuario opendkim o UID 90 de forma fija
+if id -u opendkim >/dev/null 2>&1; then
+  OPENDKIM_USER="opendkim:opendkim"
+else
+  OPENDKIM_USER="90:91"
+fi
 
-# Forzar permisos correctos para el UID de ejecución actual
-chown -R "$CURRENT_UID:$CURRENT_GID" "$KEYS_DIR"
+chown -R $OPENDKIM_USER "$KEYS_DIR"
+chmod 700 /etc/opendkim/keys
 chmod 700 "$KEYS_DIR"
 chmod 600 "$KEYS_DIR/$KEY_NAME.private"
 chmod 644 "$KEYS_DIR/$KEY_NAME.txt"
@@ -37,7 +39,7 @@ for file in /etc/opendkim/conf.d/*.conf; do
   cat "$file" >> /etc/opendkim/opendkim.conf
 done
 
-chown 90:91 /etc/opendkim/opendkim.conf
+chown $OPENDKIM_USER /etc/opendkim/opendkim.conf
 chmod 644 /etc/opendkim/opendkim.conf
 
 echo "Configuración de OpenDKIM completada."
