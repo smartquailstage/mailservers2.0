@@ -54,19 +54,31 @@ insertData() {
   fi
 
   log "Operation completed successfully for $email."
+  echo "--------------------------------------------------"
 }
 
-# Verificar que se pasen los parámetros correctos
-if [ "$#" -ne 4 ]; then
-  echo "Usage: $0 <domain> <email> <password> <alias>"
+# Verificar que se pase el archivo como parámetro
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 <accounts_file.txt>"
   exit 1
 fi
 
-# Obtener los parámetros
-DOMAIN=$1
-EMAIL=$2
-PASSWORD=$3
-ALIAS=$4
+INPUT_FILE=$1
 
-# Llamar a la función insertData
-insertData "$DOMAIN" "$EMAIL" "$PASSWORD" "$ALIAS"
+if [ ! -f "$INPUT_FILE" ]; then
+  echo "Error: File $INPUT_FILE not found!"
+  exit 1
+fi
+
+# Leer el archivo línea por línea (saltando líneas vacías o comentarios que comiencen con #)
+while IFS= read -r line || [ -n "$line" ]; do
+  # Omitir líneas vacías o comentarios
+  [[ -z "$line" || "$line" =~ ^# ]] && continue
+
+  # Separar los campos por espacios o tabulaciones
+  read -r DOMAIN EMAIL PASSWORD ALIAS <<< "$line"
+
+  if [ -n "$DOMAIN" ] && [ -n "$EMAIL" ] && [ -n "$PASSWORD" ] && [ -n "$ALIAS" ]; then
+    insertData "$DOMAIN" "$EMAIL" "$PASSWORD" "$ALIAS"
+  fi
+done < "$INPUT_FILE"
